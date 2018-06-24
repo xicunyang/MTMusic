@@ -74,49 +74,77 @@ public class UrlMain extends SwipeBackActivity {
         search_big_empty.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //理想中是3D旋转
-//                Intent intent = new Intent();
-//                intent.setClass(UrlMain.this,UrlDetails.class);
-//                startActivityForResult(intent, 0, ActivityOptions.makeSceneTransitionAnimation(UrlMain.this).toBundle());
-                //测试动画
-                float pianyi = DensityUtil.dip2px(UrlMain.this,110);
-                ObjectAnimator searchBigEmpty_scaleX = ObjectAnimator.ofFloat(search_big_empty,"scaleX",1f,2f);
-                ObjectAnimator searchBigEmpty_scaleY = ObjectAnimator.ofFloat(search_big_empty,"scaleY",1f,0.3f);
-                ObjectAnimator searchBigEmpty_alpha = ObjectAnimator.ofFloat(search_big_empty,"alpha",1f,0.2f,0f);
-                ObjectAnimator searchBigEmpty_translationY = ObjectAnimator.ofFloat(search_big_empty,"translationY",-pianyi,-pianyi-350f);
-                ObjectAnimator searchBigEmpty_translationX = ObjectAnimator.ofFloat(search_big_empty,"translationX",0,-100f);
+                //圆圈上移+放大镜上移+搜索框淡入+搜索按钮淡入
+                zcAnimation();
+            }
+        });
+    }
+
+    //圆圈上移+放大镜上移+搜索框淡入+搜索按钮淡入
+    private void zcAnimation(){
+        //圆圈上移淡出
+        float pianyi = DensityUtil.dip2px(UrlMain.this,110);
+        ObjectAnimator searchBigEmpty_scaleX = ObjectAnimator.ofFloat(search_big_empty,"scaleX",1f,2f);
+        ObjectAnimator searchBigEmpty_scaleY = ObjectAnimator.ofFloat(search_big_empty,"scaleY",1f,0.3f);
+        ObjectAnimator searchBigEmpty_alpha = ObjectAnimator.ofFloat(search_big_empty,"alpha",1f,0.2f,0f);
+        ObjectAnimator searchBigEmpty_translationY = ObjectAnimator.ofFloat(search_big_empty,"translationY",-pianyi,-pianyi-350f);
+        ObjectAnimator searchBigEmpty_translationX = ObjectAnimator.ofFloat(search_big_empty,"translationX",0,-100f);
+        AnimatorSet set = new AnimatorSet();
+        set.play(searchBigEmpty_scaleX).with(searchBigEmpty_scaleY).with(searchBigEmpty_alpha)
+                .with(searchBigEmpty_translationY).with(searchBigEmpty_translationX);
+        set.setDuration(1000);
+        set.start();
+
+        //放大镜上移淡出
+        ObjectAnimator searchBig_scaleX = ObjectAnimator.ofFloat(search_big,"scaleX",1f,0.7f);
+        ObjectAnimator searchBig_scaleY = ObjectAnimator.ofFloat(search_big,"scaleY",1f,0.7f);
+        ObjectAnimator searchBig_alpha = ObjectAnimator.ofFloat(search_big,"alpha",1f,0.2f,0f);
+        ObjectAnimator searchBig_translationY = ObjectAnimator.ofFloat(search_big,"translationY",-pianyi,-pianyi-300f);
+        ObjectAnimator searchBig_translationX = ObjectAnimator.ofFloat(search_big,"translationX",0,450f);
+        AnimatorSet set2 = new AnimatorSet();
+        set2.play(searchBig_scaleX).with(searchBig_scaleY).with(searchBig_alpha)
+                .with(searchBig_translationY).with(searchBig_translationX);
+        set2.setDuration(1000);
+        set2.start();
+
+        //将搜索框和放大镜淡入
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //先将上面两个给gong掉---防止误触
+                search_big_empty.setVisibility(View.INVISIBLE);
+                search_big.setVisibility(View.INVISIBLE);
+
+                ObjectAnimator url_et_alpha = ObjectAnimator.ofFloat(url_et,"alpha",0f,1f);
+                ObjectAnimator url_iv_alpha = ObjectAnimator.ofFloat(url_iv,"alpha",0f,1f);
                 AnimatorSet set = new AnimatorSet();
-                set.play(searchBigEmpty_scaleX).with(searchBigEmpty_scaleY).with(searchBigEmpty_alpha)
-                        .with(searchBigEmpty_translationY).with(searchBigEmpty_translationX);
                 set.setDuration(1000);
+                set.play(url_et_alpha).with(url_iv_alpha);
                 set.start();
-
-                ObjectAnimator searchBig_scaleX = ObjectAnimator.ofFloat(search_big,"scaleX",1f,0.7f);
-                ObjectAnimator searchBig_scaleY = ObjectAnimator.ofFloat(search_big,"scaleY",1f,0.7f);
-                ObjectAnimator searchBig_alpha = ObjectAnimator.ofFloat(search_big,"alpha",1f,0.2f,0f);
-                ObjectAnimator searchBig_translationY = ObjectAnimator.ofFloat(search_big,"translationY",-pianyi,-pianyi-300f);
-                ObjectAnimator searchBig_translationX = ObjectAnimator.ofFloat(search_big,"translationX",0,450f);
-                AnimatorSet set2 = new AnimatorSet();
-                set2.play(searchBig_scaleX).with(searchBig_scaleY).with(searchBig_alpha)
-                        .with(searchBig_translationY).with(searchBig_translationX);
-                set2.setDuration(1000);
-                set2.start();
-
+                url_et.setVisibility(View.VISIBLE);
+                url_iv.setVisibility(View.VISIBLE);
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        ObjectAnimator url_et_alpha = ObjectAnimator.ofFloat(url_et,"alpha",0f,1f);
-                        ObjectAnimator url_iv_alpha = ObjectAnimator.ofFloat(url_iv,"alpha",0f,1f);
+
+                        ObjectAnimator tv1_alpha = ObjectAnimator.ofFloat(tv_1,"alpha",1f,0f);
+                        ObjectAnimator tv2_alpha = ObjectAnimator.ofFloat(tv_2,"alpha",1f,0f);
+                        ObjectAnimator tv3_alpha = ObjectAnimator.ofFloat(tv_3,"alpha",1f,0f);
+
+                        ObjectAnimator tv1_translationY = ObjectAnimator.ofFloat(tv_1,"translationY",0f,50f);
+                        ObjectAnimator tv2_translationY = ObjectAnimator.ofFloat(tv_2,"translationY",0f,100f);
+                        ObjectAnimator tv3_translationY = ObjectAnimator.ofFloat(tv_3,"translationY",0f,150f);
+
                         AnimatorSet set = new AnimatorSet();
-                        set.setDuration(1000);
-                        set.play(url_et_alpha).with(url_iv_alpha);
+                        set.setDuration(600);
+                        set.play(tv1_alpha).with(tv1_translationY)
+                                .with(tv2_alpha).with(tv2_translationY)
+                                .with(tv3_alpha).with(tv3_translationY);
                         set.start();
-                        url_et.setVisibility(View.VISIBLE);
-                        url_iv.setVisibility(View.VISIBLE);
                     }
-                },700);
+                },1000);
             }
-        });
+        },700);
     }
 
     //进场动画

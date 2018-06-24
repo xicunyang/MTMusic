@@ -43,7 +43,7 @@
         android:layout_height="wrap_content"
         android:drawSelectorOnTop="false"
         android:scrollbars="vertical"
-        android:background="@color/MyDark"
+
         android:divider="#44ffffff"
         android:dividerHeight="1px">
     </ListView>

@@ -8,7 +8,11 @@ import android.support.v7.widget.Toolbar;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.Serializable;
 import java.util.List;
@@ -16,11 +20,12 @@ import java.util.List;
 import me.imid.swipebacklayout.lib.SwipeBackLayout;
 import me.imid.swipebacklayout.lib.app.SwipeBackActivity;
 import www.mutou.com.adapter.AdapterLocalListView;
+import www.mutou.com.application.MyApplication;
 import www.mutou.com.model.Mp3Info;
 import www.mutou.com.mtmusic.R;
 import www.mutou.com.utils.AudioUtils;
 
-public class LocalMain extends SwipeBackActivity{
+public class LocalMain extends SwipeBackActivity implements AdapterView.OnItemClickListener{
 
     private ListView listView_localMain;
     private static final String TAG = "LocalMain";
@@ -72,7 +77,7 @@ public class LocalMain extends SwipeBackActivity{
             //Log.d(TAG, "handleMessage: yxc--->"+mp3Infos.size());
             //成功获取到所有的MP3文件---存入了List中
             //然后就是将list数据存入listView上
-           /* Log.d(TAG, "handleMessage: yxc"
+            /*Log.d(TAG, "handleMessage: yxc"
                     +mp3Infos.get(0).getAlbum()+"---"
                     +mp3Infos.get(0).getFileName()+"---"
                     +mp3Infos.get(0).getFileUrl()+"---"
@@ -93,6 +98,8 @@ public class LocalMain extends SwipeBackActivity{
         AdapterLocalListView adapterLocalListView = new AdapterLocalListView(LocalMain.this,mp3Infos);
         listView_localMain.setAdapter(adapterLocalListView);
 
+        //给listView设置点击事件
+        listView_localMain.setOnItemClickListener(this);
     }
 
     //显示ToolBar的返回按钮
@@ -111,5 +118,17 @@ public class LocalMain extends SwipeBackActivity{
             finish();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+
+    //item点击事件
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        int start = listView_localMain.getFirstVisiblePosition();
+//        View v = listView_localMain.getChildAt(position-start);
+//        TextView tv = (TextView) v.findViewById(R.id.local_detail_title);
+//        //Toast.makeText(this, "position->"+tv.getText(), Toast.LENGTH_SHORT).show();
+//        tv.setVisibility(View.INVISIBLE);
+       // MyApplication.nowPosition = position;
     }
 }
