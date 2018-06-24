@@ -25,6 +25,8 @@ public class LocalMain extends SwipeBackActivity{
     private ListView listView_localMain;
     private static final String TAG = "LocalMain";
     private SwipeBackLayout mSwipeBackLayout;
+    private int x;
+    private  int y;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
