@@ -92,6 +92,7 @@ public class LocalMain extends SwipeBackActivity{
         listView_localMain = (ListView) findViewById(R.id.local_listview);
         AdapterLocalListView adapterLocalListView = new AdapterLocalListView(LocalMain.this,mp3Infos);
         listView_localMain.setAdapter(adapterLocalListView);
+
     }
 
     //显示ToolBar的返回按钮

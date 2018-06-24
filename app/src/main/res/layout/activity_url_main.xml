@@ -9,21 +9,142 @@
     android:fitsSystemWindows="true"
     android:background="@color/MyDark"
     >
+    <!--非菜单布局-->
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar_localMain"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            app:layout_collapseMode="pin"
+            android:theme="@style/toolbar_theme"
+            android:background="@color/MyDark"
+            >
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="网络音乐"
+                    android:textSize="20dp"
+                    android:textColor="#fff"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="70dp"
+                    />
+            </RelativeLayout>
+        </android.support.v7.widget.Toolbar>
+    </android.support.design.widget.AppBarLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="55dp"
+        android:padding="10dp"
+        >
+        <EditText
+            android:id="@+id/url_search_et"
+            android:layout_weight="5"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:background="@drawable/search_edittext_style"
+            android:paddingLeft="8dp"
+            android:textColor="#fff"
+            android:textCursorDrawable="@drawable/search_edittext_cursor_style"
+            android:visibility="gone"
+            />
+        <ImageView
+            android:id="@+id/url_search_iv"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:src="@drawable/search_small"
+            android:layout_gravity="bottom"
+            android:visibility="gone"
+            />
+
+
+
+    </LinearLayout>
+
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/url_search_big"
         android:layout_width="140dp"
         android:layout_height="140dp"
         android:src="@drawable/search_big"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"
         android:layout_centerInParent="true"
         />
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/url_search_big_empty"
         android:layout_width="140dp"
         android:layout_height="140dp"
-        android:src="@drawable/search_big_empty"
+        android:src="#00000000"
         app:civ_border_width="4px"
         app:civ_border_color="#fff"
+        android:layout_centerHorizontal="true"
         android:layout_centerInParent="true"
+        />
+    <TextView
+        android:id="@+id/urlMain_tv_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="点击搜索"
+        android:textColor="#fff"
+        android:textSize="25dp"
+        android:layout_below="@+id/url_search_big"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="-40dp"
+        android:visibility="gone"
+        />
+    <TextView
+        android:id="@+id/urlMain_tv_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="歌曲/歌手/专辑"
+        android:textColor="#fff"
+        android:textSize="25dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/urlMain_tv_1"
+        android:layout_marginTop="10dp"
+        android:visibility="gone"
+        />
+    <TextView
+        android:id="@+id/urlMain_tv_3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Come On"
+        android:textColor="#fff"
+        android:textSize="25dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/urlMain_tv_2"
+        android:layout_marginTop="10dp"
+        android:visibility="gone"
         />
 
 </RelativeLayout>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

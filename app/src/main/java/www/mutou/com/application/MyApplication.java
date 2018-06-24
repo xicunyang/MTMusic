@@ -11,5 +11,4 @@ public class MyApplication extends Application{
     public static boolean isPlaying = false;
     //刚打开--是否是停止？
     public static boolean isStoping = true;
-
 }
