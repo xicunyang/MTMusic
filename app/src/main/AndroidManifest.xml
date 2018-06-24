@@ -25,8 +25,12 @@
         <activity
             android:name=".MainActivity"
             android:theme="@style/MainTranslucentTheme" />
-        <activity android:name="www.mutou.com.local.LocalMain"
-            android:theme="@style/LocalMainTranslucentTheme"/>
+        <activity
+            android:name="www.mutou.com.local.LocalMain"
+            android:theme="@style/LocalMainTranslucentTheme" />
+        <activity android:name="www.mutou.com.url.UrlMain"
+            android:theme="@style/LocalMainTranslucentTheme"
+            ></activity>
     </application>
 
 </manifest>

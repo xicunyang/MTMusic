@@ -36,6 +36,7 @@ import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 import www.mutou.com.application.MyApplication;
 import www.mutou.com.local.LocalMain;
+import www.mutou.com.url.UrlMain;
 import www.mutou.com.utils.DensityUtil;
 
 public class MainActivity extends AppCompatActivity{
@@ -97,7 +98,10 @@ public class MainActivity extends AppCompatActivity{
         urlView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TwoAnimation(2);
+                //TwoAnimation(2);
+                Intent intent = new Intent();
+                intent.setClass(MainActivity.this,UrlMain.class);
+                startActivityForResult(intent, 0, ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle());
             }
         });
     }

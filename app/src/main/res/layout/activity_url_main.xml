@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="www.mutou.com.url.UrlMain"
+    android:fitsSystemWindows="true"
+    android:background="@color/MyDark"
+    >
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/url_search_big"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
+        android:src="@drawable/search_big"
+        android:layout_centerInParent="true"
+        />
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/url_search_big_empty"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
+        android:src="@drawable/search_big_empty"
+        app:civ_border_width="4px"
+        app:civ_border_color="#fff"
+        android:layout_centerInParent="true"
+        />
+
+</RelativeLayout>
