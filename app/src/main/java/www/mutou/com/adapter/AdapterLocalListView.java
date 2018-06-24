@@ -1,0 +1,125 @@
+package www.mutou.com.adapter;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
+import java.util.List;
+
+import www.mutou.com.model.Mp3Info;
+import www.mutou.com.mtmusic.R;
+
+/**
+ * Created by 木头 on 2018/6/23.
+ */
+
+public class AdapterLocalListView extends BaseAdapter{
+    Context mContext;
+    List<Mp3Info> mp3Infos;
+    public AdapterLocalListView(Context context, List<Mp3Info> mp3Infos){
+        mContext = context;
+        this.mp3Infos = mp3Infos;
+    }
+    @Override
+    public int getCount() {
+        if(mp3Infos!=null){
+            return mp3Infos.size();
+        }
+        return 0;
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return null;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return 0;
+    }
+
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        /*
+            使用ViewHolder的好处就是要想使用 ListView 就需要编写一个 Adapter 将数据适配到 ListView上，
+            而为了节省资源提高运行效率，一般自定义类 ViewHolder
+            来减少 findViewById() 的使用以及避免过多地 inflate view，从而实现目标。
+         */
+        ViewHolder viewHolder = null;
+        //如果此条目是空的---就新建
+        if(convertView==null){
+            //新建条目
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.activity_local_main_item,null);
+            //新建一个Holder存条目
+            viewHolder = new ViewHolder();
+            viewHolder.tv_title = (TextView) convertView.findViewById(R.id.local_detail_title);
+            viewHolder.iv_download_ok = (ImageView) convertView.findViewById(R.id.local_detail_download_ok);
+            viewHolder.iv_hq = (ImageView) convertView.findViewById(R.id.local_detail_hq);
+            viewHolder.tv_singerAlum = (TextView) convertView.findViewById(R.id.local_detail_singerAlum);
+            //将viewHolder存入convertView中
+            convertView.setTag(viewHolder);
+        }
+        //此条目被新建过---划下去又划上来了---此时就不用重新建条目了
+        else{
+            //直接获取到条目
+            viewHolder = (ViewHolder) convertView.getTag();
+        }
+
+
+        //以上解决之后---开始设置值
+        viewHolder.tv_title.setText(mp3Infos.get(position).getTitle());
+        viewHolder.tv_singerAlum.setText(mp3Infos.get(position).getSinger()+"-"
+                    +mp3Infos.get(position).getAlbum());
+        if(isHQ(mp3Infos.get(position).getSize())){
+            viewHolder.iv_hq.setVisibility(View.VISIBLE);
+        }
+
+        return convertView;
+    }
+
+    private boolean isHQ(String S){
+        float size = Float.parseFloat(S.substring(0,S.length()-1));
+        if(size<=10){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+
+    class ViewHolder{
+        TextView tv_title;
+        ImageView iv_download_ok;
+        ImageView iv_hq;
+        TextView tv_singerAlum;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
