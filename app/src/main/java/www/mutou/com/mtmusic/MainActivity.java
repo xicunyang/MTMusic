@@ -45,6 +45,7 @@ import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 import www.mutou.com.application.MyApplication;
 import www.mutou.com.local.LocalMain;
+import www.mutou.com.model.KuWoInfo;
 import www.mutou.com.model.Mp3Info;
 import www.mutou.com.service.PlayerService;
 import www.mutou.com.url.UrlMain;
@@ -148,7 +149,7 @@ public class MainActivity extends AppCompatActivity{
                     showFabItems();
                     fab_ckeched = true;
                     //设置动画  item显示
-                    if(MyApplication.nowMp3Info!=null){
+                    if(!MyApplication.STOPING){
                         ObjectAnimator item_alpha = ObjectAnimator.ofFloat(ll_item,"alpha",0f,0f,1f);
                         ObjectAnimator item_translationX = ObjectAnimator.ofFloat(ll_item,"translationX",300f,0f);
                         AnimatorSet set = new AnimatorSet();
@@ -162,14 +163,14 @@ public class MainActivity extends AppCompatActivity{
                 else{
                     closeFabItems();
                     //设置动画  item退出
-                    if(MyApplication.nowMp3Info!=null) {
-                        ObjectAnimator item_alpha = ObjectAnimator.ofFloat(ll_item, "alpha", 1f, 0f, 0f);
-                        ObjectAnimator item_translationX = ObjectAnimator.ofFloat(ll_item, "translationX", 0f, 300f);
-                        AnimatorSet set = new AnimatorSet();
-                        set.play(item_alpha).with(item_translationX);
-                        set.setDuration(500);
-                        set.start();
-                    }
+
+                    ObjectAnimator item_alpha = ObjectAnimator.ofFloat(ll_item, "alpha", 1f, 0f, 0f);
+                    ObjectAnimator item_translationX = ObjectAnimator.ofFloat(ll_item, "translationX", 0f, 300f);
+                    AnimatorSet set = new AnimatorSet();
+                    set.play(item_alpha).with(item_translationX);
+                    set.setDuration(500);
+                    set.start();
+
                     //rl_item.setVisibility(View.GONE);
                     fab_ckeched = false;
                 }
@@ -188,76 +189,130 @@ public class MainActivity extends AppCompatActivity{
         prev.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //alllist为空
-                if(MyApplication.allLocalmp3list== null){
-                    return;
-                }
-                //当前播放位置为空
-                if(MyApplication.nowPosition == -1){
-                    return;
-                }
-                //如果点击下来的瞬间---当前位置已经是第一个了，那么就将当前位置设置为末尾+1
-                if(MyApplication.nowPosition == 0){
-                    MyApplication.nowPosition = MyApplication.allLocalmp3list.size();
-                }
-                //当前播放位置-1
-                MyApplication.nowPosition --;
-                //设置当前播放的音乐实体
-                MyApplication.nowMp3Info = MyApplication.allLocalmp3list.get(MyApplication.nowPosition);
-                //通知Service播放音乐
-                Intent intent = new Intent();
-                intent.putExtra("PLAYFLAG","PREV");
-                intent.putExtra("WHO","LOCAL");
-                intent.setClass(MainActivity.this, PlayerService.class);
-                startService(intent);
+                if(MyApplication.isLocal){
+                    //本地
+                    //alllist为空
+                    if(MyApplication.allLocalmp3list== null){
+                        return;
+                    }
+                    //当前播放位置为空
+                    if(MyApplication.nowPosition == -1){
+                        return;
+                    }
+                    //如果点击下来的瞬间---当前位置已经是第一个了，那么就将当前位置设置为末尾+1
+                    if(MyApplication.nowPosition == 0){
+                        MyApplication.nowPosition = MyApplication.allLocalmp3list.size();
+                    }
+                    //当前播放位置-1
+                    MyApplication.nowPosition --;
+                    //设置当前播放的音乐实体
+                    MyApplication.nowMp3Info = MyApplication.allLocalmp3list.get(MyApplication.nowPosition);
+                    //通知Service播放音乐
+                    Intent intent = new Intent();
+                    intent.putExtra("PLAYFLAG","PREV");
+                    intent.putExtra("WHO","LOCAL");
+                    intent.setClass(MainActivity.this, PlayerService.class);
+                    startService(intent);
 
-                Toast.makeText(MainActivity.this, "当前歌曲 "+MyApplication.allLocalmp3list.get(
-                        MyApplication.nowPosition
-                ).getTitle(), Toast.LENGTH_SHORT).show();
-                //到了最后一首歌
-                if(MyApplication.nowPosition == 0){
-                    Toast.makeText(MainActivity.this, "到了第一首歌 "+MyApplication.allLocalmp3list.get(
+                    Toast.makeText(MainActivity.this, "当前歌曲 "+MyApplication.allLocalmp3list.get(
                             MyApplication.nowPosition
                     ).getTitle(), Toast.LENGTH_SHORT).show();
+/*                    //到了最后一首歌
+                    if(MyApplication.nowPosition == 0){
+                        Toast.makeText(MainActivity.this, "到了第一首歌 "+MyApplication.allLocalmp3list.get(
+                                MyApplication.nowPosition
+                        ).getTitle(), Toast.LENGTH_SHORT).show();
+                    }*/
                 }
+                else{
+                    //当前播放位置为空------------------------------
+                    if(MyApplication.nowUrlPosition == -1){
+                        return;
+                    }
+                    //如果点击下来的瞬间---当前位置已经是第一个了，那么就将当前位置设置为末尾+1
+                    if(MyApplication.nowUrlPosition == 0){
+                        if(MyApplication.isWho.equals("kw")){
+                            MyApplication.nowUrlPosition = MyApplication.allUrlmp3list_kw.get(0).getAbslist().length;
+                        }
+                    }
+                    //当前播放位置-1
+                    MyApplication.nowUrlPosition --;
+                    //设置当前播放的音乐实体
+                    if(MyApplication.isWho.equals("kw")) {
+                        MyApplication.nowUrlMp3Info_kw = MyApplication.allUrlmp3list_kw.get(0).getAbslist()[MyApplication.nowUrlPosition];
+                    }
+                    //通知Service播放音乐
+                    Intent intent = new Intent();
+                    intent.putExtra("PLAYFLAG","PREV");
+                    intent.putExtra("WHO","URL");
+                    intent.setClass(MainActivity.this, PlayerService.class);
+                    startService(intent);
+                }
+
             }
         });
         //下一首
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //alllist为空
-                if(MyApplication.allLocalmp3list== null){
-                    return;
+                if(MyApplication.isLocal){
+                    //alllist为空
+                    if(MyApplication.allLocalmp3list== null){
+                        return;
+                    }
+                    //当前播放位置为空
+                    if(MyApplication.nowPosition == -1){
+                        return;
+                    }
+
+                    //如果点击下来的瞬间---当前位置已经是末尾了，那么就将当前位置设置顶部-1
+                    if(MyApplication.nowPosition == MyApplication.allLocalmp3list.size()-1){
+                        MyApplication.nowPosition = -1;
+                    }
+                    //当前播放位置+1
+                    MyApplication.nowPosition ++;
+                    Log.d(TAG, "onClick: mutou--->"+MyApplication.nowUrlPosition);
+                    //设置当前播放的音乐实体
+                    MyApplication.nowMp3Info = MyApplication.allLocalmp3list.get(MyApplication.nowPosition);
+                    //通知Service播放音乐
+                    Intent intent = new Intent();
+                    intent.putExtra("PLAYFLAG","NEXT");
+                    intent.putExtra("WHO","LOCAL");
+                    intent.setClass(MainActivity.this, PlayerService.class);
+                    startService(intent);
+                    //到了最后一首歌
+                    if(MyApplication.nowPosition == MyApplication.allLocalmp3list.size()-1){
+                        Toast.makeText(MainActivity.this, "到了最后一首歌 "+MyApplication.allLocalmp3list.get(
+                                MyApplication.nowPosition
+                        ).getTitle(), Toast.LENGTH_SHORT).show();
+                    }
                 }
-                //当前播放位置为空
-                if(MyApplication.nowPosition == -1){
-                    return;
+                else{
+                    //当前播放位置为空------------------------------
+                    if(MyApplication.nowUrlPosition == -1){
+                        return;
+                    }
+                    //如果点击下来的瞬间---当前位置已经是第一个了，那么就将当前位置设置为末尾+1
+                    if(MyApplication.nowUrlPosition == MyApplication.allUrlmp3list_kw.get(0).getAbslist().length-1){
+                        if(MyApplication.isWho.equals("kw")){
+                            MyApplication.nowUrlPosition = -1;
+                        }
+                    }
+                    //当前播放位置-1
+                    MyApplication.nowUrlPosition ++;
+                    //设置当前播放的音乐实体
+                    Log.d(TAG, "onClick: mutou--->"+MyApplication.nowUrlPosition);
+                    if(MyApplication.isWho.equals("kw")) {
+                        MyApplication.nowUrlMp3Info_kw = MyApplication.allUrlmp3list_kw.get(0).getAbslist()[MyApplication.nowUrlPosition];
+                    }
+                    //通知Service播放音乐
+                    Intent intent = new Intent();
+                    intent.putExtra("PLAYFLAG","NEXT");
+                    intent.putExtra("WHO","URL");
+                    intent.setClass(MainActivity.this, PlayerService.class);
+                    startService(intent);
                 }
 
-                //如果点击下来的瞬间---当前位置已经是末尾了，那么就将当前位置设置顶部-1
-                if(MyApplication.nowPosition == MyApplication.allLocalmp3list.size()-1){
-                    MyApplication.nowPosition = -1;
-                }
-                //当前播放位置+1
-                MyApplication.nowPosition ++;
-                Toast.makeText(MainActivity.this, "当前歌曲 "+MyApplication.allLocalmp3list.get(
-                        MyApplication.nowPosition
-                ).getTitle(), Toast.LENGTH_SHORT).show();
-                //设置当前播放的音乐实体
-                MyApplication.nowMp3Info = MyApplication.allLocalmp3list.get(MyApplication.nowPosition);
-                //通知Service播放音乐
-                Intent intent = new Intent();
-                intent.putExtra("PLAYFLAG","NEXT");
-                intent.putExtra("WHO","LOCAL");
-                intent.setClass(MainActivity.this, PlayerService.class);
-                startService(intent);
-                //到了最后一首歌
-                if(MyApplication.nowPosition == MyApplication.allLocalmp3list.size()-1){
-                    Toast.makeText(MainActivity.this, "到了最后一首歌 "+MyApplication.allLocalmp3list.get(
-                            MyApplication.nowPosition
-                    ).getTitle(), Toast.LENGTH_SHORT).show();
-                }
             }
         });
         //暂停---播放切换
@@ -269,36 +324,72 @@ public class MainActivity extends AppCompatActivity{
                 /*/*//*****在正式的时候需要将此代码去掉
                 MyApplication.isStoping = false; /*//*
                 /*//*********************************/
+                Log.d(TAG, "onClick: mutou666  MyApplication.isLocal "+MyApplication.isLocal);
+                Log.d(TAG, "onClick: mutou666  MyApplication.isStoping_local "+MyApplication.isStoping_local);
+                Log.d(TAG, "onClick: mutou666  MyApplication.isPlaying_local "+MyApplication.isPlaying_local);
+                Log.d(TAG, "onClick: mutou666  MyApplication.isStoping_url "+MyApplication.isStoping_url);
+                Log.d(TAG, "onClick: mutou666  MyApplication.isPlaying_url "+MyApplication.isPlaying_url);
+                Log.d(TAG, "onClick: mutou666  --------------------------------------------------------------------");
+                if(MyApplication.isLocal){
+                    if(!MyApplication.isStoping_local){
+                        //暂停--->播放
+                        if(!MyApplication.isPlaying_local){
+                            //将图片改为播放
+                            playOrPause.setImageResource(R.drawable.playing);
+                            MyApplication.isPlaying_local = true;
 
-                if(!MyApplication.isStoping){
-                    //暂停--->播放
-                    if(!MyApplication.isPlaying){
-                        //将图片改为播放
-                        playOrPause.setImageResource(R.drawable.playing);
-                        MyApplication.isPlaying = true;
+                            //开启Service
+                            Intent intent = new Intent();
+                            intent.putExtra("PLAYFLAG","PAUSE2PLAY");
+                            intent.putExtra("WHO","LOCAL");
+                            intent.setClass(MainActivity.this, PlayerService.class);
+                            startService(intent);
+                        }
+                        //播放--->暂停
+                        else{
+                            //将图片改为暂停
+                            playOrPause.setImageResource(R.drawable.pausing);
+                            MyApplication.isPlaying_local = false;
 
-                        //开启Service
-                        Intent intent = new Intent();
-                        intent.putExtra("PLAYFLAG","PAUSE2PLAY");
-                        intent.putExtra("WHO","LOCAL");
-                        intent.setClass(MainActivity.this, PlayerService.class);
-                        startService(intent);
-                    }
-                    //播放--->暂停
-                    else{
-                        //将图片改为暂停
-                        playOrPause.setImageResource(R.drawable.pausing);
-                        MyApplication.isPlaying = false;
-
-                        //开启Service
-                        Intent intent = new Intent();
-                        intent.putExtra("PLAYFLAG","PLAY2PAUSE");
-                        intent.putExtra("WHO","LOCAL");
-                        intent.setClass(MainActivity.this, PlayerService.class);
-                        startService(intent);
+                            //开启Service
+                            Intent intent = new Intent();
+                            intent.putExtra("PLAYFLAG","PLAY2PAUSE");
+                            intent.putExtra("WHO","LOCAL");
+                            intent.setClass(MainActivity.this, PlayerService.class);
+                            startService(intent);
+                        }
                     }
                 }
+                else{
+                    if(!MyApplication.isStoping_url){
+                        //暂停--->播放
+                        if(MyApplication.isPlaying_url == false){
+                            //将图片改为播放
+                            playOrPause.setImageResource(R.drawable.playing);
+                            MyApplication.isPlaying_url = true;
 
+                            //开启Service
+                            Intent intent = new Intent();
+                            intent.putExtra("PLAYFLAG","PAUSE2PLAY");
+                            intent.putExtra("WHO","URL");
+                            intent.setClass(MainActivity.this, PlayerService.class);
+                            startService(intent);
+                        }
+                        //播放--->暂停
+                        else{
+                            //将图片改为暂停
+                            playOrPause.setImageResource(R.drawable.pausing);
+                            MyApplication.isPlaying_url = false;
+
+                            //开启Service
+                            Intent intent = new Intent();
+                            intent.putExtra("PLAYFLAG","PLAY2PAUSE");
+                            intent.putExtra("WHO","URL");
+                            intent.setClass(MainActivity.this, PlayerService.class);
+                            startService(intent);
+                        }
+                    }
+                }
             }
         });
     }
@@ -488,14 +579,16 @@ public class MainActivity extends AppCompatActivity{
     public class MyBroadReceiver extends BroadcastReceiver{
         @Override
         public void onReceive(Context context, Intent intent) {
-            //Log.d(TAG, "onReceive: yxc-->receive OK");
+            Log.d(TAG, "onReceive: yxc666-->receive OK");
             //成功接受到广播---开始进行判断
             if(intent.getStringExtra("WHAT").equals("changePlayOrPause")){
+                Log.d(TAG, "onReceive: yxc666-->111");
                 //开始更新页面
                 //根据全局变量isPlaying的状态判断是应该显示什么
                 //正在播放
                 //然后添加动画---一直旋转
                 if(MyApplication.MainFABRotation==null){
+                    Log.d(TAG, "onReceive: yxc666-->2");
                     MyApplication.MainFABRotation = ObjectAnimator.ofFloat(main_fab,"rotation",0f,360f);
                     //重复次数
                     MyApplication.MainFABRotation.setRepeatCount(ValueAnimator.INFINITE);
@@ -508,7 +601,8 @@ public class MainActivity extends AppCompatActivity{
                     MyApplication.MainFABRotation.setRepeatMode(ValueAnimator.RESTART);
                 }
 
-                if(MyApplication.isPlaying){
+                /*//这里用或者不行---
+                if(MyApplication.isPlaying_local || MyApplication.isPlaying_url){
                     //设置成playing的图片
                     playOrPause.setImageResource(R.drawable.playing);
                     MyApplication.MainFABRotation.start();
@@ -519,12 +613,50 @@ public class MainActivity extends AppCompatActivity{
                     if(MyApplication.MainFABRotation.isRunning()){
                         MyApplication.MainFABRotation.pause();
                     }
+                }*/
+                if(MyApplication.isLocal){
+                    if(MyApplication.isPlaying_local){
+                        //设置成playing的图片
+                        playOrPause.setImageResource(R.drawable.playing);
+                        MyApplication.MainFABRotation.start();
+                    }
+                    else{
+                        playOrPause.setImageResource(R.drawable.pausing);
+                        //然后添加动画---停止旋转
+                        if(MyApplication.MainFABRotation.isRunning()){
+                            MyApplication.MainFABRotation.pause();
+                        }
+                    }
+                }else{
+                    if(MyApplication.isPlaying_url){
+                        //设置成playing的图片
+                        playOrPause.setImageResource(R.drawable.playing);
+                        MyApplication.MainFABRotation.start();
+                    }
+                    else{
+                        playOrPause.setImageResource(R.drawable.pausing);
+                        //然后添加动画---停止旋转
+                        if(MyApplication.MainFABRotation.isRunning()){
+                            MyApplication.MainFABRotation.pause();
+                        }
+                    }
                 }
 
-                //更新歌曲信息到item中
-                Mp3Info mp3Info = MyApplication.nowMp3Info;
-                tv_item_title.setText(mp3Info.getTitle());
-                tv_item_singerAlum.setText(mp3Info.getSinger()+"-"+mp3Info.getAlbum());
+                if(MyApplication.isLocal){
+                    //更新歌曲信息到item中
+                    Mp3Info mp3Info = MyApplication.nowMp3Info;
+                    tv_item_title.setText(mp3Info.getTitle());
+                    tv_item_singerAlum.setText(mp3Info.getSinger()+"-"+mp3Info.getAlbum());
+                }
+                else {
+                    switch (MyApplication.isWho){
+                        case "kw":
+                            KuWoInfo.abslist kuwoinfo = MyApplication.nowUrlMp3Info_kw;
+                            tv_item_title.setText(kuwoinfo.getSONGNAME());
+                            tv_item_singerAlum.setText(kuwoinfo.getARTIST()+"-"+kuwoinfo.getALBUM());
+                            break;
+                    }
+                }
             }
 
         }

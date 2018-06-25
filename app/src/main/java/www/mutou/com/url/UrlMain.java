@@ -33,10 +33,14 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import me.imid.swipebacklayout.lib.SwipeBackLayout;
 import me.imid.swipebacklayout.lib.app.SwipeBackActivity;
 import www.mutou.com.adapter.AdapterUrlListView_Kuwo;
+import www.mutou.com.application.MyApplication;
+import www.mutou.com.local.LocalMain;
 import www.mutou.com.model.KuWoInfo;
+import www.mutou.com.model.Mp3Info;
 import www.mutou.com.mtmusic.MainActivity;
 import www.mutou.com.mtmusic.R;
 import www.mutou.com.service.HtmlService;
+import www.mutou.com.service.PlayerService;
 import www.mutou.com.service.testUrlPlayer;
 import www.mutou.com.utils.DensityUtil;
 
@@ -129,7 +133,8 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
                 set.start();
                 kuwo_item.setVisibility(View.VISIBLE);
                 kugou_item.setVisibility(View.VISIBLE);
-
+                //设置位置标示为0
+                MyApplication.nowUrlPosition = -2;
 
                 //将第一个的dot进行拉伸---形成下划线
                 new Handler().postDelayed(new Runnable() {
@@ -153,6 +158,8 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
             public void onClick(View v) {
                 showDot("kuwo");
                 url_progressbar.setVisibility(View.VISIBLE);
+                //设置位置标示为0
+                MyApplication.nowUrlPosition = -2;
                 //进行歌曲列表集合的获取
                 new Thread(new Runnable() {
                     @Override
@@ -165,6 +172,7 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
         kugou_item.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                MyApplication.nowUrlPosition = -2;
                 showDot("kugou");
             }
         });
@@ -217,7 +225,7 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             //修改list的值，插入数据---使用不同的Adapter
-            Log.d(TAG, "getKuwoSongs: yxc---"+kuwo_list.get(0).getAbslist().length);
+            MyApplication.allUrlmp3list_kw = kuwo_list;
             AdapterUrlListView_Kuwo adapterUrlListView_kuwo = new AdapterUrlListView_Kuwo(UrlMain.this,kuwo_list);
             url_listview.setAdapter(adapterUrlListView_kuwo);
             url_progressbar.setVisibility(View.GONE);
@@ -387,15 +395,107 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
     //在item点击的时候
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        //设置isLocal为false---证明现在就是isUrl，要清空其变量的值吗？我觉得可以不清空
+        MyApplication.isLocal = false;
+        MyApplication.nowPosition = 0;
+        MyApplication.STOPING = false;
+
         //1.获取到position---使用position进行获取到此条目
 
         View v = url_listview.getChildAt(position-url_listview.getFirstVisiblePosition());
-        TextView tv = (TextView) v.findViewById(R.id.url_detail_url);
-        Log.d(TAG, "onItemClick: yxc--->"+tv.getText());
+        TextView tv_who = (TextView) v.findViewById(R.id.url_detail_who);
+        switch (tv_who.getText().toString()){
+            case "kw":
+                MyApplication.isWho = "kw";
+                break;
+        }
 
-        /*Intent intent = new Intent();
-        intent.setClass(UrlMain.this,testUrlPlayer.class);
-        startService(intent);*/
+        MyApplication.nowUrlMp3Info_kw = kuwo_list.get(0).getAbslist()[position];
+
+        //先更新位置
+        MyApplication.oldUrlPosition = MyApplication.nowUrlPosition;
+        MyApplication.nowUrlPosition = position;
+
+        linkToService(position);
+    }
+
+    private synchronized void linkToService(int position){
+        Intent intent = new Intent();
+        //先将停止的flag去掉---第一次播放STOP2PLAY
+        //这里的isstoping会有冲突---第一首歌播放完之后就将此改为false了
+        if(MyApplication.isStoping_url){
+            MyApplication.isStoping_url = false;
+            MyApplication.isStoping_local = true;
+            intent.putExtra("PLAYFLAG","STOP2PLAY");
+            intent.putExtra("WHO","URL");
+            intent.setClass(UrlMain.this, PlayerService.class);
+            startService(intent);
+        }
+        //如果两次点击的是同一条---就暂停PLAY2PAUSE
+        else if(position == MyApplication.oldUrlPosition){
+            if(MyApplication.isPlaying_url){
+                intent.putExtra("PLAYFLAG","PLAY2PAUSE");
+                intent.putExtra("WHO","URL");
+                intent.setClass(UrlMain.this, PlayerService.class);
+                startService(intent);
+            }
+            else{
+                intent.putExtra("PLAYFLAG","PAUSE2PLAY");
+                intent.putExtra("WHO","URL");
+                intent.setClass(UrlMain.this, PlayerService.class);
+                startService(intent);
+            }
+        }
+        else if(MyApplication.oldUrlPosition!=-1 && position != MyApplication.oldUrlPosition){
+            intent.putExtra("PLAYFLAG","PLAYNEW");
+            intent.putExtra("WHO","URL");
+            intent.setClass(UrlMain.this, PlayerService.class);
+            startService(intent);
+        }
+        //改变点的状态---切换位置
+        changePlayingFlag(position);
+    }
+    private void changePlayingFlag(int position) {
+        int start = url_listview.getFirstVisiblePosition();
+        int end = url_listview.getLastVisiblePosition();
+        int oldPosition = MyApplication.oldUrlPosition;
+        int newPosition = MyApplication.nowUrlPosition;
+
+        if(oldPosition!=-1){
+            //说明不是第一次点击items
+            //先清除原来的
+            //此时---oldPosition-start<count有两种情况
+            //情况1---正常
+            //情况2---多滑一点点，count会多1
+            if(oldPosition>=start && oldPosition<=end){
+                //说明在显示区域内---不在显示区域内的话就不管了
+                //先去掉原来的
+                //怎样获取到位置呢？
+                //说明是第一次点击items
+                //oldPosition-start来定位当前视图内的位置
+                setItemFlagChange(oldPosition-start,View.GONE);
+                //设置新的
+                //newPosition-start来定位新按下的在视图内的位置
+                setItemFlagChange(newPosition-start,View.VISIBLE);
+            }
+            else{
+                //设置新的
+                //newPosition-start来定位新按下的在视图内的位置
+                setItemFlagChange(newPosition-start,View.VISIBLE);
+            }
+
+        }
+        else{
+            //说明是第一次点击items
+            //position-start来定位当前摁下的在可见视图内的位置
+            setItemFlagChange(position-start,View.VISIBLE);
+        }
+    }
+
+    public synchronized void setItemFlagChange(int position,int visible){
+        View v = url_listview.getChildAt(position);
+        ImageView iv = (ImageView) v.findViewById(R.id.url_detail_playing_flag);
+        iv.setVisibility(visible);
     }
 }
 

@@ -1,21 +1,16 @@
 package www.mutou.com.local;
-
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
-import android.transition.Visibility;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.io.Serializable;
 import java.util.List;
@@ -131,11 +126,13 @@ public class LocalMain extends SwipeBackActivity implements AdapterView.OnItemCl
         return super.onOptionsItemSelected(item);
     }
 
-
     //item点击事件&&播放flag图片的实现
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        //*******
+        //*******在这里进行设置----点击了就算是现在是local了
+        MyApplication.STOPING = false;
+        MyApplication.isLocal = true;
+        MyApplication.nowUrlPosition = 0;
 
         //获取到当前点击的item对应的MP3实体
         MyApplication.nowMp3Info = mp3Infos.get(position);
@@ -147,9 +144,9 @@ public class LocalMain extends SwipeBackActivity implements AdapterView.OnItemCl
 
         Intent intent = new Intent();
         //先将停止的flag去掉---第一次播放STOP2PLAY
-        if(MyApplication.isStoping){
-            MyApplication.isStoping = false;
-
+        if(MyApplication.isStoping_local){
+            MyApplication.isStoping_local = false;
+            MyApplication.isStoping_url = true;
             intent.putExtra("PLAYFLAG","STOP2PLAY");
             intent.putExtra("WHO","LOCAL");
             intent.setClass(LocalMain.this, PlayerService.class);
@@ -157,7 +154,7 @@ public class LocalMain extends SwipeBackActivity implements AdapterView.OnItemCl
         }
         //如果两次点击的是同一条---就暂停PLAY2PAUSE
         else if(position == MyApplication.oldPosition){
-            if(MyApplication.isPlaying){
+            if(MyApplication.isPlaying_local){
                 intent.putExtra("PLAYFLAG","PLAY2PAUSE");
                 intent.putExtra("WHO","LOCAL");
                 intent.setClass(LocalMain.this, PlayerService.class);

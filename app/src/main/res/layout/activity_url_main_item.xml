@@ -88,9 +88,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text=""
-                    android:textColor="#99ffffff"
-                    android:layout_marginLeft="7dp"
-                    android:textSize="11dp"
+                    android:visibility="invisible"
+                    />
+                <TextView
+                    android:id="@+id/url_detail_who"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
                     android:visibility="invisible"
                     />
             </LinearLayout>

@@ -55,7 +55,7 @@
             android:paddingLeft="8dp"
             android:textColor="#fff"
             android:textCursorDrawable="@drawable/search_edittext_cursor_style"
-            android:visibility="visible"
+            android:visibility="invisible"
             />
         <ImageView
             android:id="@+id/url_search_iv"
@@ -64,7 +64,7 @@
             android:layout_height="40dp"
             android:src="@drawable/search_small"
             android:layout_gravity="bottom"
-            android:visibility="visible"
+            android:visibility="invisible"
             />
     </LinearLayout>
     <LinearLayout

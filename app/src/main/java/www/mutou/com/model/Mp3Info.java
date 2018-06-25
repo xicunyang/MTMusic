@@ -20,6 +20,7 @@ public class Mp3Info implements Serializable{
     private String type;
     private String size;
     private String fileUrl;
+    private String who;
 
     public String getFileName() {
         return fileName;
@@ -105,8 +106,17 @@ public class Mp3Info implements Serializable{
         this.id = id;
     }
 
-    public Mp3Info(int id,String fileName, String title, int duration, String singer,
-                   String album, String year, String type, String size, String fileUrl) {
+    public String getWho() {
+        return who;
+    }
+
+    public void setWho(String who) {
+        this.who = who;
+    }
+
+    public Mp3Info(int id, String fileName, String title, int duration, String singer,
+                   String album, String year, String type, String size, String fileUrl
+                    ,String who) {
         super();
         this.id = id;
         this.fileName = fileName;
@@ -118,6 +128,7 @@ public class Mp3Info implements Serializable{
         this.type = type;
         this.size = size;
         this.fileUrl = fileUrl;
+        this.who = who;
     }
 
     @Override

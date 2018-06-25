@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.TextClock;
 import android.widget.TextView;
 
 import java.util.List;
@@ -64,6 +65,7 @@ public class AdapterUrlListView_Kuwo extends BaseAdapter{
             viewHolder.iv_playing_flag = (ImageView) convertView.findViewById(R.id.url_detail_playing_flag);
             viewHolder.tv_id = (TextView) convertView.findViewById(R.id.url_detail_id);
             viewHolder.tv_url = (TextView) convertView.findViewById(R.id.url_detail_url);
+            viewHolder.tv_who = (TextView) convertView.findViewById(R.id.url_detail_who);
             //将viewHolder存入convertView中
             convertView.setTag(viewHolder);
         }
@@ -83,7 +85,7 @@ public class AdapterUrlListView_Kuwo extends BaseAdapter{
 
 //        Log.d(TAG, "getView: yxc--nowPosition--->"+MyApplication.nowPosition+"  position---"+position);
         //这个position不是我想的position---而是当前视图内的position
-        if(MyApplication.nowPosition == position){
+        if(MyApplication.nowUrlPosition == position){
             viewHolder.iv_playing_flag.setVisibility(View.VISIBLE);
         }
         else{
@@ -91,6 +93,7 @@ public class AdapterUrlListView_Kuwo extends BaseAdapter{
         }
 
         viewHolder.tv_url.setText(kuWoInfos.get(0).getAbslist()[position].getMP3RID());
+        viewHolder.tv_who.setText("kw");
         return convertView;
     }
 
@@ -102,6 +105,7 @@ public class AdapterUrlListView_Kuwo extends BaseAdapter{
         ImageView iv_playing_flag;
         TextView tv_id;
         TextView tv_url;
+        TextView tv_who;
     }
 }
 
