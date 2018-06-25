@@ -69,8 +69,27 @@
                     android:layout_marginLeft="7dp"
                     android:textSize="11dp"
                     />
+                <TextView
+                    android:id="@+id/local_detail_id"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textColor="#99ffffff"
+                    android:layout_marginLeft="7dp"
+                    android:textSize="11dp"
+                    android:visibility="visible"
+                    />
             </LinearLayout>
         </LinearLayout>
+        <!--在这里添加另一个图片-->
+        <ImageView
+            android:id="@+id/local_detail_playing_flag"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="@drawable/playing_flag"
+            android:visibility="gone"
+            />
     </LinearLayout>
 </LinearLayout>
 

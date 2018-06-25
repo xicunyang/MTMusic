@@ -1,6 +1,7 @@
 package www.mutou.com.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import java.util.List;
 
+import www.mutou.com.application.MyApplication;
 import www.mutou.com.model.Mp3Info;
 import www.mutou.com.mtmusic.R;
 
@@ -19,6 +21,7 @@ import www.mutou.com.mtmusic.R;
 public class AdapterLocalListView extends BaseAdapter{
     Context mContext;
     List<Mp3Info> mp3Infos;
+    private static final String TAG = "AdapterLocalListView";
     public AdapterLocalListView(Context context, List<Mp3Info> mp3Infos){
         mContext = context;
         this.mp3Infos = mp3Infos;
@@ -60,6 +63,8 @@ public class AdapterLocalListView extends BaseAdapter{
             viewHolder.iv_download_ok = (ImageView) convertView.findViewById(R.id.local_detail_download_ok);
             viewHolder.iv_hq = (ImageView) convertView.findViewById(R.id.local_detail_hq);
             viewHolder.tv_singerAlum = (TextView) convertView.findViewById(R.id.local_detail_singerAlum);
+            viewHolder.iv_playing_flag = (ImageView) convertView.findViewById(R.id.local_detail_playing_flag);
+            viewHolder.tv_id = (TextView) convertView.findViewById(R.id.local_detail_id);
             //将viewHolder存入convertView中
             convertView.setTag(viewHolder);
         }
@@ -77,6 +82,16 @@ public class AdapterLocalListView extends BaseAdapter{
         if(isHQ(mp3Infos.get(position).getSize())){
             viewHolder.iv_hq.setVisibility(View.VISIBLE);
         }
+
+//        Log.d(TAG, "getView: yxc--nowPosition--->"+MyApplication.nowPosition+"  position---"+position);
+        //这个position不是我想的position---而是当前视图内的position
+        if(MyApplication.nowPosition == position){
+            viewHolder.iv_playing_flag.setVisibility(View.VISIBLE);
+        }
+        else{
+            viewHolder.iv_playing_flag.setVisibility(View.GONE);
+        }
+        viewHolder.tv_id.setText(mp3Infos.get(position).getId().toString());
 
         return convertView;
     }
@@ -96,6 +111,8 @@ public class AdapterLocalListView extends BaseAdapter{
         ImageView iv_download_ok;
         ImageView iv_hq;
         TextView tv_singerAlum;
+        ImageView iv_playing_flag;
+        TextView tv_id;
     }
 }
 

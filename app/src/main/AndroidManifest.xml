@@ -31,8 +31,14 @@
         <activity
             android:name="www.mutou.com.url.UrlMain"
             android:theme="@style/LocalMainTranslucentTheme" />
-        <activity android:name="www.mutou.com.url.UrlDetails"
-            android:theme="@style/LocalMainTranslucentTheme"></activity>
+        <activity
+            android:name="www.mutou.com.url.UrlDetails"
+            android:theme="@style/LocalMainTranslucentTheme" />
+
+        <service
+            android:name="www.mutou.com.service.PlayerService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

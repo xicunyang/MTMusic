@@ -23,7 +23,8 @@ public class AudioUtils {
   
         Cursor cursor = context.getContentResolver().query(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                new String[] { MediaStore.Audio.Media._ID,  
+                new String[] {
+                        MediaStore.Audio.Media._ID,
                         MediaStore.Audio.Media.DISPLAY_NAME,  
                         MediaStore.Audio.Media.TITLE,  
                         MediaStore.Audio.Media.DURATION,  
@@ -40,11 +41,14 @@ public class AudioUtils {
         songs = new ArrayList<Mp3Info>();
   
         if (cursor.moveToFirst()) {
+            int id = 0;
 
             Mp3Info song = null;
   
             do {  
                 song = new Mp3Info();
+                //自定义id
+                song.setId(id);
                 // 文件名  
                 song.setFileName(cursor.getString(1));  
                 // 歌曲名  
@@ -78,7 +82,8 @@ public class AudioUtils {
                 if (cursor.getString(9) != null) {  
                     song.setFileUrl(cursor.getString(9));  
                 }  
-                songs.add(song);  
+                songs.add(song);
+                id++;
             } while (cursor.moveToNext());  
   
             cursor.close();  

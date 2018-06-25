@@ -1,5 +1,7 @@
 package www.mutou.com.model;
 
+import android.content.Intent;
+
 import java.io.Serializable;
 
 /**
@@ -8,6 +10,7 @@ import java.io.Serializable;
 
 public class Mp3Info implements Serializable{
 
+    private Integer id;
     private String fileName;
     private String title;
     private int duration;
@@ -94,9 +97,18 @@ public class Mp3Info implements Serializable{
         super();
     }
 
-    public Mp3Info(String fileName, String title, int duration, String singer,
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Mp3Info(int id,String fileName, String title, int duration, String singer,
                    String album, String year, String type, String size, String fileUrl) {
         super();
+        this.id = id;
         this.fileName = fileName;
         this.title = title;
         this.duration = duration;
@@ -110,7 +122,7 @@ public class Mp3Info implements Serializable{
 
     @Override
     public String toString() {
-        return "Song [fileName=" + fileName + ", title=" + title
+        return "Song [id="+id+", fileName=" + fileName + ", title=" + title
                 + ", duration=" + duration + ", singer=" + singer + ", album="
                 + album + ", year=" + year + ", type=" + type + ", size="
                 + size + ", fileUrl=" + fileUrl + "]";

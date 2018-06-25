@@ -3,9 +3,13 @@ package www.mutou.com.mtmusic;
 import android.Manifest;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.ActivityOptions;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
@@ -25,6 +29,7 @@ import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -36,6 +41,7 @@ import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 import www.mutou.com.application.MyApplication;
 import www.mutou.com.local.LocalMain;
+import www.mutou.com.service.PlayerService;
 import www.mutou.com.url.UrlMain;
 import www.mutou.com.utils.DensityUtil;
 
@@ -68,11 +74,7 @@ public class MainActivity extends AppCompatActivity{
         //显示侧边栏三个横线图标
         getActionBarImage();
 
-        //开始进场动画
-        inAnimation();
 
-        //设置两个选项的点击事件
-        addEvent();
     }
 
     //设置两个选项的点击事件
@@ -80,16 +82,6 @@ public class MainActivity extends AppCompatActivity{
         localView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            /*TwoAnimation(1);
-
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    Intent intent = new Intent();
-                    intent.setClass(MainActivity.this,LocalMain.class);
-                    startActivityForResult(intent, 0, ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle());
-                }
-            }, 300);*/
                 Intent intent = new Intent();
                 intent.setClass(MainActivity.this,LocalMain.class);
                 startActivityForResult(intent, 0, ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle());
@@ -107,24 +99,6 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void TwoAnimation(int flag){
-       /* ObjectAnimator animator_translation = null;
-        Object thisObject = null;
-        if(flag==1){
-            thisObject = localView;
-            animator_translation = ObjectAnimator.ofFloat(thisObject,"translationY",-300f,100f);
-        }
-        else if(flag == 2){
-            thisObject = urlView;
-            animator_translation = ObjectAnimator.ofFloat(thisObject,"translationY",300f,-100f);
-        }
-
-        ObjectAnimator animator_scaleX = ObjectAnimator.ofFloat(thisObject,"scaleX",1f,0.3f,3f);
-        ObjectAnimator animator_scaleY = ObjectAnimator.ofFloat(thisObject,"scaleY",1f,0.3f,3f);
-        ObjectAnimator animator_alpha = ObjectAnimator.ofFloat(thisObject,"alpha",1f,0f);
-        AnimatorSet set = new AnimatorSet();
-        set.play(animator_translation).with(animator_scaleX).with(animator_scaleY).with(animator_alpha);
-        set.setDuration(500);
-        set.start();*/
        //还是抖动一下比较好---因为用户还会返回回来
         Object thisObject = null;
         if(flag==1){
@@ -181,14 +155,20 @@ public class MainActivity extends AppCompatActivity{
         prev.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent();
+                intent.putExtra("PLAYFLAG","PREV");
+                intent.setClass(MainActivity.this, PlayerService.class);
+                startService(intent);
             }
         });
         //下一首
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent();
+                intent.putExtra("PLAYFLAG","NEXT");
+                intent.setClass(MainActivity.this, PlayerService.class);
+                startService(intent);
             }
         });
         //暂停---播放切换
@@ -196,25 +176,35 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onClick(View v) {
                 //是否是刚打开软件---停止的状态？
-                Log.d(TAG, "onClick: yxc"+MyApplication.isPlaying);
-                Log.d(TAG, "onClick: yxc"+MyApplication.isStoping);
 
-                //*****在正式的时候需要将此代码去掉
-                MyApplication.isStoping = false; //*
-                //********************************
+                /*/*//*****在正式的时候需要将此代码去掉
+                MyApplication.isStoping = false; /*//*
+                /*//*********************************/
 
                 if(!MyApplication.isStoping){
-                    //如果正在暂停
+                    //暂停--->播放
                     if(!MyApplication.isPlaying){
                         //将图片改为播放
                         playOrPause.setImageResource(R.drawable.playing);
                         MyApplication.isPlaying = true;
+
+                        //开启Service
+                        Intent intent = new Intent();
+                        intent.putExtra("PLAYFLAG","PAUSE2PLAY");
+                        intent.setClass(MainActivity.this, PlayerService.class);
+                        startService(intent);
                     }
-                    //如果正在播放
+                    //播放--->暂停
                     else{
                         //将图片改为暂停
                         playOrPause.setImageResource(R.drawable.pausing);
                         MyApplication.isPlaying = false;
+
+                        //开启Service
+                        Intent intent = new Intent();
+                        intent.putExtra("PLAYFLAG","PLAY2PAUSE");
+                        intent.setClass(MainActivity.this, PlayerService.class);
+                        startService(intent);
                     }
                 }
 
@@ -224,6 +214,8 @@ public class MainActivity extends AppCompatActivity{
 
     //显示悬浮按钮组动画
     private void showFabItems(){
+        //给主按钮加一个旋转
+        ObjectAnimator mainFAB_rotation = ObjectAnimator.ofFloat(main_fab,"rotation",0f,360f);
         ObjectAnimator prev_alpha = ObjectAnimator.ofFloat(prev,"alpha",0f,0f,0f,1f);
         ObjectAnimator prev_translationY = ObjectAnimator.ofFloat(prev,"translationY",80f,80f,80f,0f);
         ObjectAnimator playOrPause_alpha = ObjectAnimator.ofFloat(playOrPause,"alpha",0f,0f,1f);
@@ -231,7 +223,7 @@ public class MainActivity extends AppCompatActivity{
         ObjectAnimator next_alpha = ObjectAnimator.ofFloat(next,"alpha",0f,1f);
         AnimatorSet set = new AnimatorSet();
         set.play(prev_alpha).with(playOrPause_alpha).with(next_alpha)
-                .with(prev_translationY).with(playOrPause_translationY);
+                .with(prev_translationY).with(playOrPause_translationY).with(mainFAB_rotation);
         set.setDuration(500);
         set.start();
         fab_items.setVisibility(View.VISIBLE);
@@ -239,6 +231,8 @@ public class MainActivity extends AppCompatActivity{
 
     //隐藏悬浮按钮组动画
     private void closeFabItems(){
+        //给主按钮加一个旋转
+        ObjectAnimator mainFAB_rotation = ObjectAnimator.ofFloat(main_fab,"rotation",360f,0f);
         ObjectAnimator prev_alpha = ObjectAnimator.ofFloat(prev,"alpha",1f,0.0f,0f);
         ObjectAnimator prev_translationY = ObjectAnimator.ofFloat(prev,"translationY",0f,80f,80f);
 
@@ -248,7 +242,7 @@ public class MainActivity extends AppCompatActivity{
         ObjectAnimator next_alpha = ObjectAnimator.ofFloat(next,"alpha",1f,1f,1f,1f,0f);
         AnimatorSet set = new AnimatorSet();
         set.play(prev_alpha).with(playOrPause_alpha).with(next_alpha)
-                .with(prev_translationY).with(playOrPause_translationY);
+                .with(prev_translationY).with(playOrPause_translationY).with(mainFAB_rotation);
         set.setDuration(500);
         set.start();
         new Handler().postDelayed(new Runnable() {
@@ -366,7 +360,14 @@ public class MainActivity extends AppCompatActivity{
 
     //服务开始---起点
     private void startMethods() {
+        //开始进场动画
+        inAnimation();
 
+        //设置两个选项的点击事件
+        addEvent();
+
+        //设置广播---以接收广播更新UI
+        initBroadCast();
     }
     //设置返回按钮：不应该退出程序---而是返回桌面
     //复写onKeyDown事件
@@ -381,5 +382,55 @@ public class MainActivity extends AppCompatActivity{
             return true;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    //接受广播以更行UI
+    private IntentFilter intentFilter;
+    private MyBroadReceiver myBroadReceiver;
+
+    private void initBroadCast(){
+        intentFilter = new IntentFilter();
+        intentFilter.addAction("android.PlayServiceBroad");
+        myBroadReceiver = new MyBroadReceiver();
+        registerReceiver(myBroadReceiver,intentFilter);
+    }
+    public class MyBroadReceiver extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //Log.d(TAG, "onReceive: yxc-->receive OK");
+            //成功接受到广播---开始进行判断
+            if(intent.getStringExtra("WHAT").equals("changePlayOrPause")){
+                //开始更新页面
+                //根据全局变量isPlaying的状态判断是应该显示什么
+                //正在播放
+                //然后添加动画---一直旋转
+                if(MyApplication.MainFABRotation==null){
+                    MyApplication.MainFABRotation = ObjectAnimator.ofFloat(main_fab,"rotation",0f,360f);
+                    //重复次数
+                    MyApplication.MainFABRotation.setRepeatCount(ValueAnimator.INFINITE);
+                    //执行时间
+                    MyApplication.MainFABRotation.setDuration(3000);
+                    //设置动画匀速运动
+                    LinearInterpolator lin = new LinearInterpolator();
+                    MyApplication.MainFABRotation.setInterpolator(lin);
+                    //结束后的状态
+                    MyApplication.MainFABRotation.setRepeatMode(ValueAnimator.RESTART);
+                }
+
+                if(MyApplication.isPlaying){
+                    //设置成playing的图片
+                    playOrPause.setImageResource(R.drawable.playing);
+                    MyApplication.MainFABRotation.start();
+                }
+                else{
+                    playOrPause.setImageResource(R.drawable.pausing);
+                    //然后添加动画---停止旋转
+                    if(MyApplication.MainFABRotation.isRunning()){
+                        MyApplication.MainFABRotation.pause();
+                    }
+                }
+            }
+
+        }
     }
 }
