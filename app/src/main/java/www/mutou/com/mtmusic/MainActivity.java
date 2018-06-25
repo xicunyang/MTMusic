@@ -31,9 +31,13 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tandong.swichlayout.SwitchLayout;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +45,7 @@ import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 import www.mutou.com.application.MyApplication;
 import www.mutou.com.local.LocalMain;
+import www.mutou.com.model.Mp3Info;
 import www.mutou.com.service.PlayerService;
 import www.mutou.com.url.UrlMain;
 import www.mutou.com.utils.DensityUtil;
@@ -56,6 +61,9 @@ public class MainActivity extends AppCompatActivity{
     private FloatingActionButton next;
     private LinearLayout fab_items;
     private static final String TAG = "MainActivity";
+    private LinearLayout ll_item;
+    private TextView tv_item_title;
+    private TextView tv_item_singerAlum;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,6 +135,11 @@ public class MainActivity extends AppCompatActivity{
         playOrPause = (FloatingActionButton) findViewById(R.id.playOrPause);
         next = (FloatingActionButton) findViewById(R.id.next);
 
+        //主悬浮按钮左边的item
+        ll_item = (LinearLayout) findViewById(R.id.ll_nowPlayItem);
+        tv_item_title = (TextView) findViewById(R.id.main_item_title);
+        tv_item_singerAlum = (TextView) findViewById(R.id.main_item_singerAlum);
+
         main_fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -134,10 +147,30 @@ public class MainActivity extends AppCompatActivity{
                 if(!fab_ckeched){
                     showFabItems();
                     fab_ckeched = true;
+                    //设置动画  item显示
+                    if(MyApplication.nowMp3Info!=null){
+                        ObjectAnimator item_alpha = ObjectAnimator.ofFloat(ll_item,"alpha",0f,0f,1f);
+                        ObjectAnimator item_translationX = ObjectAnimator.ofFloat(ll_item,"translationX",300f,0f);
+                        AnimatorSet set = new AnimatorSet();
+                        set.play(item_alpha).with(item_translationX);
+                        set.setDuration(500);
+                        set.start();
+                        ll_item.setVisibility(View.VISIBLE);
+                    }
                 }
                 //如果按钮以被点击
                 else{
                     closeFabItems();
+                    //设置动画  item退出
+                    if(MyApplication.nowMp3Info!=null) {
+                        ObjectAnimator item_alpha = ObjectAnimator.ofFloat(ll_item, "alpha", 1f, 0f, 0f);
+                        ObjectAnimator item_translationX = ObjectAnimator.ofFloat(ll_item, "translationX", 0f, 300f);
+                        AnimatorSet set = new AnimatorSet();
+                        set.play(item_alpha).with(item_translationX);
+                        set.setDuration(500);
+                        set.start();
+                    }
+                    //rl_item.setVisibility(View.GONE);
                     fab_ckeched = false;
                 }
             }
@@ -155,20 +188,76 @@ public class MainActivity extends AppCompatActivity{
         prev.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //alllist为空
+                if(MyApplication.allLocalmp3list== null){
+                    return;
+                }
+                //当前播放位置为空
+                if(MyApplication.nowPosition == -1){
+                    return;
+                }
+                //如果点击下来的瞬间---当前位置已经是第一个了，那么就将当前位置设置为末尾+1
+                if(MyApplication.nowPosition == 0){
+                    MyApplication.nowPosition = MyApplication.allLocalmp3list.size();
+                }
+                //当前播放位置-1
+                MyApplication.nowPosition --;
+                //设置当前播放的音乐实体
+                MyApplication.nowMp3Info = MyApplication.allLocalmp3list.get(MyApplication.nowPosition);
+                //通知Service播放音乐
                 Intent intent = new Intent();
                 intent.putExtra("PLAYFLAG","PREV");
+                intent.putExtra("WHO","LOCAL");
                 intent.setClass(MainActivity.this, PlayerService.class);
                 startService(intent);
+
+                Toast.makeText(MainActivity.this, "当前歌曲 "+MyApplication.allLocalmp3list.get(
+                        MyApplication.nowPosition
+                ).getTitle(), Toast.LENGTH_SHORT).show();
+                //到了最后一首歌
+                if(MyApplication.nowPosition == 0){
+                    Toast.makeText(MainActivity.this, "到了第一首歌 "+MyApplication.allLocalmp3list.get(
+                            MyApplication.nowPosition
+                    ).getTitle(), Toast.LENGTH_SHORT).show();
+                }
             }
         });
         //下一首
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //alllist为空
+                if(MyApplication.allLocalmp3list== null){
+                    return;
+                }
+                //当前播放位置为空
+                if(MyApplication.nowPosition == -1){
+                    return;
+                }
+
+                //如果点击下来的瞬间---当前位置已经是末尾了，那么就将当前位置设置顶部-1
+                if(MyApplication.nowPosition == MyApplication.allLocalmp3list.size()-1){
+                    MyApplication.nowPosition = -1;
+                }
+                //当前播放位置+1
+                MyApplication.nowPosition ++;
+                Toast.makeText(MainActivity.this, "当前歌曲 "+MyApplication.allLocalmp3list.get(
+                        MyApplication.nowPosition
+                ).getTitle(), Toast.LENGTH_SHORT).show();
+                //设置当前播放的音乐实体
+                MyApplication.nowMp3Info = MyApplication.allLocalmp3list.get(MyApplication.nowPosition);
+                //通知Service播放音乐
                 Intent intent = new Intent();
                 intent.putExtra("PLAYFLAG","NEXT");
+                intent.putExtra("WHO","LOCAL");
                 intent.setClass(MainActivity.this, PlayerService.class);
                 startService(intent);
+                //到了最后一首歌
+                if(MyApplication.nowPosition == MyApplication.allLocalmp3list.size()-1){
+                    Toast.makeText(MainActivity.this, "到了最后一首歌 "+MyApplication.allLocalmp3list.get(
+                            MyApplication.nowPosition
+                    ).getTitle(), Toast.LENGTH_SHORT).show();
+                }
             }
         });
         //暂停---播放切换
@@ -191,6 +280,7 @@ public class MainActivity extends AppCompatActivity{
                         //开启Service
                         Intent intent = new Intent();
                         intent.putExtra("PLAYFLAG","PAUSE2PLAY");
+                        intent.putExtra("WHO","LOCAL");
                         intent.setClass(MainActivity.this, PlayerService.class);
                         startService(intent);
                     }
@@ -203,6 +293,7 @@ public class MainActivity extends AppCompatActivity{
                         //开启Service
                         Intent intent = new Intent();
                         intent.putExtra("PLAYFLAG","PLAY2PAUSE");
+                        intent.putExtra("WHO","LOCAL");
                         intent.setClass(MainActivity.this, PlayerService.class);
                         startService(intent);
                     }
@@ -429,8 +520,23 @@ public class MainActivity extends AppCompatActivity{
                         MyApplication.MainFABRotation.pause();
                     }
                 }
+
+                //更新歌曲信息到item中
+                Mp3Info mp3Info = MyApplication.nowMp3Info;
+                tv_item_title.setText(mp3Info.getTitle());
+                tv_item_singerAlum.setText(mp3Info.getSinger()+"-"+mp3Info.getAlbum());
             }
 
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(myBroadReceiver);
+        Intent intent = new Intent();
+        intent.putExtra("PLAYFLAG","STOP");
+        intent.setClass(MainActivity.this, PlayerService.class);
+        startService(intent);
     }
 }

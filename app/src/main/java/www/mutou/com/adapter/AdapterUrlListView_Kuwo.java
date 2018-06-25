@@ -1,35 +1,34 @@
 package www.mutou.com.adapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import java.util.List;
 
 import www.mutou.com.application.MyApplication;
-import www.mutou.com.model.Mp3Info;
+import www.mutou.com.model.KuWoInfo;
 import www.mutou.com.mtmusic.R;
 
 /**
- * Created by 木头 on 2018/6/23.
+ * Created by 木头 on 2018/6/25.
  */
 
-public class AdapterLocalListView extends BaseAdapter{
+public class AdapterUrlListView_Kuwo extends BaseAdapter{
     Context mContext;
-    List<Mp3Info> mp3Infos;
-    private static final String TAG = "AdapterLocalListView";
-    public AdapterLocalListView(Context context, List<Mp3Info> mp3Infos){
-        mContext = context;
-        this.mp3Infos = mp3Infos;
+    List<KuWoInfo> kuWoInfos;
+    public AdapterUrlListView_Kuwo(Context mContext, List<KuWoInfo> kuWoInfos){
+        this.mContext = mContext;
+        this.kuWoInfos = kuWoInfos;
     }
     @Override
     public int getCount() {
-        if(mp3Infos!=null){
-            return mp3Infos.size();
+        if(kuWoInfos!=null){
+            return kuWoInfos.get(0).getAbslist().length;
         }
         return 0;
     }
@@ -44,10 +43,9 @@ public class AdapterLocalListView extends BaseAdapter{
         return 0;
     }
 
-
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        /*
+/*
             使用ViewHolder的好处就是要想使用 ListView 就需要编写一个 Adapter 将数据适配到 ListView上，
             而为了节省资源提高运行效率，一般自定义类 ViewHolder
             来减少 findViewById() 的使用以及避免过多地 inflate view，从而实现目标。
@@ -56,15 +54,16 @@ public class AdapterLocalListView extends BaseAdapter{
         //如果此条目是空的---就新建
         if(convertView==null){
             //新建条目
-            convertView = LayoutInflater.from(mContext).inflate(R.layout.activity_local_main_item,null);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.activity_url_main_item,null);
             //新建一个Holder存条目
             viewHolder = new ViewHolder();
-            viewHolder.tv_title = (TextView) convertView.findViewById(R.id.local_detail_title);
-            viewHolder.iv_download_ok = (ImageView) convertView.findViewById(R.id.local_detail_download_ok);
-            viewHolder.iv_hq = (ImageView) convertView.findViewById(R.id.local_detail_hq);
-            viewHolder.tv_singerAlum = (TextView) convertView.findViewById(R.id.local_detail_singerAlum);
-            viewHolder.iv_playing_flag = (ImageView) convertView.findViewById(R.id.local_detail_playing_flag);
-            viewHolder.tv_id = (TextView) convertView.findViewById(R.id.local_detail_id);
+            viewHolder.tv_title = (TextView) convertView.findViewById(R.id.url_detail_title);
+            viewHolder.iv_detail_mv = (ImageView) convertView.findViewById(R.id.url_detail_mv);
+            viewHolder.iv_hq = (ImageView) convertView.findViewById(R.id.url_detail_hq);
+            viewHolder.tv_singerAlum = (TextView) convertView.findViewById(R.id.url_detail_singerAlum);
+            viewHolder.iv_playing_flag = (ImageView) convertView.findViewById(R.id.url_detail_playing_flag);
+            viewHolder.tv_id = (TextView) convertView.findViewById(R.id.url_detail_id);
+            viewHolder.tv_url = (TextView) convertView.findViewById(R.id.url_detail_url);
             //将viewHolder存入convertView中
             convertView.setTag(viewHolder);
         }
@@ -76,12 +75,11 @@ public class AdapterLocalListView extends BaseAdapter{
 
 
         //以上解决之后---开始设置值
-        viewHolder.tv_title.setText(mp3Infos.get(position).getTitle());
-        viewHolder.tv_singerAlum.setText(mp3Infos.get(position).getSinger()+"-"
-                    +mp3Infos.get(position).getAlbum());
-        if(isHQ(mp3Infos.get(position).getSize())){
-            viewHolder.iv_hq.setVisibility(View.VISIBLE);
-        }
+        viewHolder.tv_title.setText(kuWoInfos.get(0).getAbslist()[position].getSONGNAME());
+        viewHolder.tv_singerAlum.setText(kuWoInfos.get(0).getAbslist()[position].getARTIST()+"-"
+                +kuWoInfos.get(0).getAbslist()[position].getALBUM());
+        viewHolder.iv_hq.setVisibility(View.VISIBLE);
+
 
 //        Log.d(TAG, "getView: yxc--nowPosition--->"+MyApplication.nowPosition+"  position---"+position);
         //这个position不是我想的position---而是当前视图内的position
@@ -91,28 +89,24 @@ public class AdapterLocalListView extends BaseAdapter{
         else{
             viewHolder.iv_playing_flag.setVisibility(View.GONE);
         }
-        return convertView;
-    }
 
-    private boolean isHQ(String S){
-        float size = Float.parseFloat(S.substring(0,S.length()-1));
-        if(size<=10){
-            return false;
-        }
-        else{
-            return true;
-        }
+        viewHolder.tv_url.setText(kuWoInfos.get(0).getAbslist()[position].getMP3RID());
+        return convertView;
     }
 
     class ViewHolder{
         TextView tv_title;
-        ImageView iv_download_ok;
+        ImageView iv_detail_mv;
         ImageView iv_hq;
         TextView tv_singerAlum;
         ImageView iv_playing_flag;
         TextView tv_id;
+        TextView tv_url;
     }
 }
+
+
+
 
 
 

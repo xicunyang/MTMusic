@@ -70,11 +70,10 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_alignParentRight="true"
-                android:layout_alignParentBottom="true"
                 android:layout_marginRight="19dp"
-                android:layout_marginBottom="80dp"
                 android:padding="10dp"
                 android:visibility="gone"
+                android:layout_above="@+id/main_fab"
                 >
                 <android.support.design.widget.FloatingActionButton
                     android:id="@+id/prev"
@@ -117,7 +116,6 @@
                     app:backgroundTint="#2c2c2b"
                     android:visibility="visible"
                     />
-
             </LinearLayout>
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/main_fab"
@@ -134,8 +132,79 @@
                 app:rippleColor="#5c5c5b"
                 app:pressedTranslationZ="16dp"
                 app:backgroundTint="#2c2c2b"
-                android:visibility="invisible"
+                android:visibility="gone"
                 />
+            <LinearLayout
+                android:id="@+id/ll_nowPlayItem"
+                android:layout_width="200dp"
+                android:layout_height="45dp"
+                android:layout_toLeftOf="@+id/main_fab"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="23dp"
+                android:background="@drawable/main_nowplayitem_style"
+                android:layout_marginRight="10dp"
+                android:visibility="gone"
+                >
+                <ImageView
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/item_flag"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="3dp"
+                    />
+                <LinearLayout
+                    android:layout_weight="7"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    >
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="4">
+                        <TextView
+                            android:id="@+id/main_item_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="已是两条路上的人"
+                            android:textColor="#fff"
+                            android:layout_gravity="center_vertical"
+                            android:paddingLeft="2dp"
+                            android:textSize="16sp"
+                            android:ellipsize="end"
+                            android:singleLine="true"
+                            />
+
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="2">
+                        <ImageView
+                            android:layout_width="10dp"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/finish_download"
+                            android:layout_marginLeft="3dp"
+                            android:layout_marginBottom="3dp"
+                            />
+                        <TextView
+                            android:id="@+id/main_item_singerAlum"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:text="赵雷-赵小雷"
+                            android:textColor="#fff"
+                            android:textSize="10sp"
+                            android:layout_marginLeft="10dp"
+                            android:ellipsize="end"
+                            android:singleLine="true"
+                            />
+
+                    </LinearLayout>
+                </LinearLayout>
+
+
+            </LinearLayout>
 
         </RelativeLayout>
         </android.support.design.widget.CoordinatorLayout>

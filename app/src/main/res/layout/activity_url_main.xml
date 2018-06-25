@@ -9,6 +9,7 @@
     android:fitsSystemWindows="true"
     android:background="@color/MyDark"
     >
+
     <!--非菜单布局-->
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar_layout"
@@ -39,6 +40,7 @@
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
     <LinearLayout
+        android:id="@+id/top_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="55dp"
@@ -53,7 +55,7 @@
             android:paddingLeft="8dp"
             android:textColor="#fff"
             android:textCursorDrawable="@drawable/search_edittext_cursor_style"
-            android:visibility="gone"
+            android:visibility="visible"
             />
         <ImageView
             android:id="@+id/url_search_iv"
@@ -62,13 +64,82 @@
             android:layout_height="40dp"
             android:src="@drawable/search_small"
             android:layout_gravity="bottom"
-            android:visibility="gone"
+            android:visibility="visible"
             />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/selectUrl"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_below="@+id/top_search"
+        android:orientation="horizontal"
+        >
+        <LinearLayout
+            android:id="@+id/kuwo_item"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="invisible"
+            >
+            <ImageView
+                android:layout_weight="1"
+                android:id="@+id/iv_kuwo"
+                android:layout_width="40dp"
+                android:layout_height="0dp"
+                android:src="@drawable/kuwo"
+                android:layout_gravity="center"
+                />
+            <ImageView
+                android:id="@+id/iv_kuwo_dot"
+                android:layout_width="1dp"
+                android:layout_height="1dp"
+                android:layout_gravity="center_horizontal"
+                android:background="#fff"
+                android:visibility="invisible"
+                />
+        </LinearLayout>
 
-
+        <LinearLayout
+            android:id="@+id/kugou_item"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="invisible"
+            >
+            <ImageView
+                android:layout_weight="1"
+                android:id="@+id/iv_kugou"
+                android:layout_width="40dp"
+                android:layout_height="0dp"
+                android:src="@drawable/kugou"
+                android:layout_gravity="center"
+                />
+            <ImageView
+                android:id="@+id/iv_kugou_dot"
+                android:layout_width="1dp"
+                android:layout_height="1dp"
+                android:layout_gravity="center_horizontal"
+                android:background="#fff"
+                android:visibility="invisible"
+                />
+        </LinearLayout>
 
     </LinearLayout>
+    <ListView
+        android:id="@+id/urlMain_listview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/selectUrl"
+        android:drawSelectorOnTop="false"
+        android:scrollbars="vertical"
+        android:background="@color/MyDark"
+        android:divider="#44ffffff"
+        android:dividerHeight="1px"
+        >
 
+    </ListView>
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/url_search_big"
         android:layout_width="140dp"
@@ -124,7 +195,15 @@
         android:layout_marginTop="10dp"
         android:visibility="gone"
         />
-
+    <ProgressBar
+        android:id="@+id/url_progressbar"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
+        android:layout_centerInParent="true"
+        android:indeterminateTintMode="src_in"
+        android:indeterminateTint="#fff"
+        android:visibility="gone"
+        />
 </RelativeLayout>
 
 

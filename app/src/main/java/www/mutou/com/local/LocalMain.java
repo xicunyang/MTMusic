@@ -15,7 +15,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.Serializable;
@@ -26,7 +25,6 @@ import me.imid.swipebacklayout.lib.app.SwipeBackActivity;
 import www.mutou.com.adapter.AdapterLocalListView;
 import www.mutou.com.application.MyApplication;
 import www.mutou.com.model.Mp3Info;
-import www.mutou.com.mtmusic.MainActivity;
 import www.mutou.com.mtmusic.R;
 import www.mutou.com.service.PlayerService;
 import www.mutou.com.utils.AudioUtils;
@@ -36,6 +34,7 @@ public class LocalMain extends SwipeBackActivity implements AdapterView.OnItemCl
     private ListView listView_localMain;
     private static final String TAG = "LocalMain";
     private SwipeBackLayout mSwipeBackLayout;
+    private List<Mp3Info> mp3Infos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +78,7 @@ public class LocalMain extends SwipeBackActivity implements AdapterView.OnItemCl
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             Bundle bundle = msg.getData();
-            List<Mp3Info> mp3Infos = (List<Mp3Info>) bundle.getSerializable("mp3infos");
+            mp3Infos = (List<Mp3Info>) bundle.getSerializable("mp3infos");
             //Log.d(TAG, "handleMessage: yxc--->"+mp3Infos.size());
             //成功获取到所有的MP3文件---存入了List中
             //然后就是将list数据存入listView上
@@ -95,6 +94,7 @@ public class LocalMain extends SwipeBackActivity implements AdapterView.OnItemCl
                     +mp3Infos.get(0).getYear()+"---"
                     +mp3Infos.get(0).getDuration()+"---"
             );*/
+            MyApplication.allLocalmp3list = mp3Infos;
             putDataToListView(mp3Infos);
         }
     };
@@ -135,10 +135,14 @@ public class LocalMain extends SwipeBackActivity implements AdapterView.OnItemCl
     //item点击事件&&播放flag图片的实现
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        //*******
+
+        //获取到当前点击的item对应的MP3实体
+        MyApplication.nowMp3Info = mp3Infos.get(position);
+
         //先更新位置
         MyApplication.oldPosition = MyApplication.nowPosition;
         MyApplication.nowPosition = position;
-
 
 
         Intent intent = new Intent();
@@ -147,6 +151,7 @@ public class LocalMain extends SwipeBackActivity implements AdapterView.OnItemCl
             MyApplication.isStoping = false;
 
             intent.putExtra("PLAYFLAG","STOP2PLAY");
+            intent.putExtra("WHO","LOCAL");
             intent.setClass(LocalMain.this, PlayerService.class);
             startService(intent);
         }
@@ -154,18 +159,20 @@ public class LocalMain extends SwipeBackActivity implements AdapterView.OnItemCl
         else if(position == MyApplication.oldPosition){
             if(MyApplication.isPlaying){
                 intent.putExtra("PLAYFLAG","PLAY2PAUSE");
+                intent.putExtra("WHO","LOCAL");
                 intent.setClass(LocalMain.this, PlayerService.class);
                 startService(intent);
             }
             else{
                 intent.putExtra("PLAYFLAG","PAUSE2PLAY");
+                intent.putExtra("WHO","LOCAL");
                 intent.setClass(LocalMain.this, PlayerService.class);
                 startService(intent);
             }
-
         }
         else if(MyApplication.oldPosition!=-1 && position != MyApplication.oldPosition){
-            intent.putExtra("PLAYFLAG","STOP2PLAY");
+            intent.putExtra("PLAYFLAG","PLAYNEW");
+            intent.putExtra("WHO","LOCAL");
             intent.setClass(LocalMain.this, PlayerService.class);
             startService(intent);
         }

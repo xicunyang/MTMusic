@@ -31,7 +31,7 @@
                 android:layout_weight="2"
                 android:orientation="horizontal">
                 <TextView
-                    android:id="@+id/local_detail_title"
+                    android:id="@+id/url_detail_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="已是两条路上的人"
@@ -47,14 +47,14 @@
                 android:layout_height="0dp"
                 android:layout_weight="1">
                 <ImageView
-                    android:id="@+id/local_detail_download_ok"
+                    android:id="@+id/url_detail_mv"
                     android:layout_width="10dp"
                     android:layout_height="10dp"
-                    android:src="@drawable/finish_download"
+                    android:src="@drawable/url_mv"
                     android:layout_marginTop="2dp"
                     />
                 <ImageView
-                    android:id="@+id/local_detail_hq"
+                    android:id="@+id/url_detail_hq"
                     android:layout_width="15dp"
                     android:layout_height="10dp"
                     android:src="@drawable/hq"
@@ -63,7 +63,7 @@
                     android:visibility="gone"
                     />
                 <TextView
-                    android:id="@+id/local_detail_singerAlum"
+                    android:id="@+id/url_detail_singerAlum"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="赵雷-赵小雷"
@@ -74,7 +74,7 @@
                     android:singleLine="true"
                     />
                 <TextView
-                    android:id="@+id/local_detail_id"
+                    android:id="@+id/url_detail_id"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text=""
@@ -83,11 +83,21 @@
                     android:textSize="11dp"
                     android:visibility="visible"
                     />
+                <TextView
+                    android:id="@+id/url_detail_url"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textColor="#99ffffff"
+                    android:layout_marginLeft="7dp"
+                    android:textSize="11dp"
+                    android:visibility="invisible"
+                    />
             </LinearLayout>
         </LinearLayout>
         <!--在这里添加另一个图片-->
         <ImageView
-            android:id="@+id/local_detail_playing_flag"
+            android:id="@+id/url_detail_playing_flag"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"

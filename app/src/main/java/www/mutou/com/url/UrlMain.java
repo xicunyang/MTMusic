@@ -5,28 +5,42 @@ import android.animation.ObjectAnimator;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alibaba.fastjson.JSON;
+
 import java.net.URL;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import me.imid.swipebacklayout.lib.SwipeBackLayout;
 import me.imid.swipebacklayout.lib.app.SwipeBackActivity;
+import www.mutou.com.adapter.AdapterUrlListView_Kuwo;
+import www.mutou.com.model.KuWoInfo;
 import www.mutou.com.mtmusic.MainActivity;
 import www.mutou.com.mtmusic.R;
+import www.mutou.com.service.HtmlService;
+import www.mutou.com.service.testUrlPlayer;
 import www.mutou.com.utils.DensityUtil;
 
-public class UrlMain extends SwipeBackActivity {
+public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClickListener {
     private SwipeBackLayout mSwipeBackLayout;
     private CircleImageView search_big;
     private CircleImageView search_big_empty;
@@ -35,6 +49,16 @@ public class UrlMain extends SwipeBackActivity {
     private TextView tv_3;
     private EditText url_et;
     private ImageView url_iv;
+    private LinearLayout kuwo_item;
+    private LinearLayout kugou_item;
+    private ImageView kuwoDot;
+    private ImageView kugouDot;
+    private static final String TAG = "UrlMain";
+    private List<KuWoInfo> kuwo_list;
+    private final int KUWO = 1;
+    private final int KUGOU = 2;
+    private ListView url_listview;
+    private ProgressBar url_progressbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +94,19 @@ public class UrlMain extends SwipeBackActivity {
         url_et = (EditText) findViewById(R.id.url_search_et);
         url_iv = (ImageView) findViewById(R.id.url_search_iv);
 
+        kuwo_item = (LinearLayout) findViewById(R.id.kuwo_item);
+        kugou_item = (LinearLayout) findViewById(R.id.kugou_item);
+
+        //两个dot
+        kuwoDot = (ImageView) findViewById(R.id.iv_kuwo_dot);
+        kugouDot = (ImageView) findViewById(R.id.iv_kugou_dot);
+
+        //找到listview控件
+        url_listview = (ListView) findViewById(R.id.urlMain_listview);
+        url_listview.setOnItemClickListener(this);
+        //进度条
+        url_progressbar = (ProgressBar) findViewById(R.id.url_progressbar);
+
         //设置大搜索按钮点击事件
         search_big_empty.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,16 +115,151 @@ public class UrlMain extends SwipeBackActivity {
                 zcAnimation();
             }
         });
+        //设置小搜索按钮的点击事件
+        url_iv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //显示酷我酷狗搜索按钮
+                ObjectAnimator kuwoItemAlpha = ObjectAnimator.ofFloat(kuwo_item,"alpha",0f,1f);
+                ObjectAnimator kugouItemAlpha = ObjectAnimator.ofFloat(kugou_item,"alpha",0f,1f);
+
+                AnimatorSet set = new AnimatorSet();
+                set.play(kuwoItemAlpha).with(kugouItemAlpha);
+                set.setDuration(1000);
+                set.start();
+                kuwo_item.setVisibility(View.VISIBLE);
+                kugou_item.setVisibility(View.VISIBLE);
+
+
+                //将第一个的dot进行拉伸---形成下划线
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        showDot("kuwo");
+                        url_progressbar.setVisibility(View.VISIBLE);
+                        //进行歌曲列表集合的获取
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                getKuwoSongs();
+                            }
+                        }).start();
+                    }
+                },500);
+            }
+        });
+        kuwo_item.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDot("kuwo");
+                url_progressbar.setVisibility(View.VISIBLE);
+                //进行歌曲列表集合的获取
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        getKuwoSongs();
+                    }
+                }).start();
+            }
+        });
+        kugou_item.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDot("kugou");
+            }
+        });
+
+
+    }
+
+    //酷我音乐获取音乐集合
+    private void getKuwoSongs() {
+
+        String searchMessage = "";
+        if(TextUtils.isEmpty(url_et.getText())){
+            //
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(UrlMain.this, "请输入内容后再进行查询~", Toast.LENGTH_SHORT).show();
+                }
+            });
+            return;
+        }
+        else{
+            searchMessage = url_et.getText().toString();
+        }
+        String jsonString = null;
+        //成功获取网页内容
+        try {
+            String url = "http://search.kuwo.cn/r.s?all="+searchMessage+"&ft=music&itemset=web_2013&client=kt&pn=0&rn=120&rformat=json&encoding=utf8";
+            Log.d(TAG, "getKuwoSongs: yxc---"+url);
+            jsonString = HtmlService.getHtml(url);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //接下来进行数据解析
+        jsonString = jsonString.replace("\\&", "&");
+        jsonString = jsonString.replace("&nbsp;", " ");
+        jsonString = "[" + jsonString + "]";
+
+
+        //使用阿里的fastJson方法
+        kuwo_list = JSON.parseArray(jsonString,KuWoInfo.class);
+        Message message = Message.obtain();
+        message.arg1 = KUWO;
+        handler.sendMessage(message);
+    }
+
+    Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            //修改list的值，插入数据---使用不同的Adapter
+            Log.d(TAG, "getKuwoSongs: yxc---"+kuwo_list.get(0).getAbslist().length);
+            AdapterUrlListView_Kuwo adapterUrlListView_kuwo = new AdapterUrlListView_Kuwo(UrlMain.this,kuwo_list);
+            url_listview.setAdapter(adapterUrlListView_kuwo);
+            url_progressbar.setVisibility(View.GONE);
+        }
+    };
+    private void showDot(String flag){
+        //显示之前先将原来的去掉
+        ObjectAnimator CkuwoDotScaleX = ObjectAnimator.ofFloat(kuwoDot,"scaleX",50f,0f);
+        ObjectAnimator CkugouDotScaleX = ObjectAnimator.ofFloat(kugouDot,"scaleX",50f,0f);
+        AnimatorSet set = new AnimatorSet();
+        set.play(CkugouDotScaleX).with(CkuwoDotScaleX);
+        set.setDuration(450);
+        set.start();
+
+        ObjectAnimator DotScaleX = null;
+        switch (flag){
+            case "kuwo":
+                DotScaleX= ObjectAnimator.ofFloat(kuwoDot,"scaleX",0f,50f);
+                DotScaleX.setDuration(500);
+                DotScaleX.start();
+                kuwoDot.setVisibility(View.VISIBLE);
+                break;
+            case "kugou":
+                DotScaleX= ObjectAnimator.ofFloat(kugouDot,"scaleX",0f,50f);
+                DotScaleX.setDuration(500);
+                DotScaleX.start();
+                kugouDot.setVisibility(View.VISIBLE);
+                break;
+            default:
+                break;
+        }
+
     }
 
     //圆圈上移+放大镜上移+搜索框淡入+搜索按钮淡入
     private void zcAnimation(){
         //圆圈上移淡出
         float pianyi = DensityUtil.dip2px(UrlMain.this,110);
-        ObjectAnimator searchBigEmpty_scaleX = ObjectAnimator.ofFloat(search_big_empty,"scaleX",1f,2f);
+        ObjectAnimator searchBigEmpty_scaleX = ObjectAnimator.ofFloat(search_big_empty,"scaleX",1f,2.3f);
         ObjectAnimator searchBigEmpty_scaleY = ObjectAnimator.ofFloat(search_big_empty,"scaleY",1f,0.3f);
         ObjectAnimator searchBigEmpty_alpha = ObjectAnimator.ofFloat(search_big_empty,"alpha",1f,0.2f,0f);
-        ObjectAnimator searchBigEmpty_translationY = ObjectAnimator.ofFloat(search_big_empty,"translationY",-pianyi,-pianyi-350f);
+        ObjectAnimator searchBigEmpty_translationY = ObjectAnimator.ofFloat(search_big_empty,"translationY",-pianyi,-pianyi-400f);
         ObjectAnimator searchBigEmpty_translationX = ObjectAnimator.ofFloat(search_big_empty,"translationX",0,-100f);
         AnimatorSet set = new AnimatorSet();
         set.play(searchBigEmpty_scaleX).with(searchBigEmpty_scaleY).with(searchBigEmpty_alpha)
@@ -96,11 +268,11 @@ public class UrlMain extends SwipeBackActivity {
         set.start();
 
         //放大镜上移淡出
-        ObjectAnimator searchBig_scaleX = ObjectAnimator.ofFloat(search_big,"scaleX",1f,0.7f);
-        ObjectAnimator searchBig_scaleY = ObjectAnimator.ofFloat(search_big,"scaleY",1f,0.7f);
+        ObjectAnimator searchBig_scaleX = ObjectAnimator.ofFloat(search_big,"scaleX",1f,0.5f);
+        ObjectAnimator searchBig_scaleY = ObjectAnimator.ofFloat(search_big,"scaleY",1f,0.5f);
         ObjectAnimator searchBig_alpha = ObjectAnimator.ofFloat(search_big,"alpha",1f,0.2f,0f);
-        ObjectAnimator searchBig_translationY = ObjectAnimator.ofFloat(search_big,"translationY",-pianyi,-pianyi-300f);
-        ObjectAnimator searchBig_translationX = ObjectAnimator.ofFloat(search_big,"translationX",0,450f);
+        ObjectAnimator searchBig_translationY = ObjectAnimator.ofFloat(search_big,"translationY",-pianyi,-pianyi-400f);
+        ObjectAnimator searchBig_translationX = ObjectAnimator.ofFloat(search_big,"translationX",0,560f);
         AnimatorSet set2 = new AnimatorSet();
         set2.play(searchBig_scaleX).with(searchBig_scaleY).with(searchBig_alpha)
                 .with(searchBig_translationY).with(searchBig_translationX);
@@ -210,6 +382,20 @@ public class UrlMain extends SwipeBackActivity {
             finish();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    //在item点击的时候
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        //1.获取到position---使用position进行获取到此条目
+
+        View v = url_listview.getChildAt(position-url_listview.getFirstVisiblePosition());
+        TextView tv = (TextView) v.findViewById(R.id.url_detail_url);
+        Log.d(TAG, "onItemClick: yxc--->"+tv.getText());
+
+        /*Intent intent = new Intent();
+        intent.setClass(UrlMain.this,testUrlPlayer.class);
+        startService(intent);*/
     }
 }
 
