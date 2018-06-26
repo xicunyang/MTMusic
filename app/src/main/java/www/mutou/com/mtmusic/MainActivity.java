@@ -226,7 +226,7 @@ public class MainActivity extends AppCompatActivity{
                 }
                 else{
                     //当前播放位置为空------------------------------
-                    if(MyApplication.nowUrlPosition == -1){
+                    if(MyApplication.nowUrlPosition <0){
                         return;
                     }
                     //如果点击下来的瞬间---当前位置已经是第一个了，那么就将当前位置设置为末尾+1
@@ -289,7 +289,7 @@ public class MainActivity extends AppCompatActivity{
                 }
                 else{
                     //当前播放位置为空------------------------------
-                    if(MyApplication.nowUrlPosition == -1){
+                    if(MyApplication.nowUrlPosition < 0){
                         return;
                     }
                     //如果点击下来的瞬间---当前位置已经是第一个了，那么就将当前位置设置为末尾+1

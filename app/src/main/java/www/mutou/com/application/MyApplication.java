@@ -39,7 +39,7 @@ public class MyApplication extends Application{
     //当前正在播放的position的上一个position
     public static int oldUrlPosition = -1;
     //当前正在播放的是谁家的音频
-    public static String isWho;
+    public static String isWho = "kw";
 
     //正在播放---两个---local---url
     //正在播放？
@@ -50,8 +50,8 @@ public class MyApplication extends Application{
     public static boolean isStoping_local = true;
     public static boolean isStoping_url = true;
 
-    //isUrl暂时不需要
-    public static boolean isUrl;
+    //UrlMain动画是否显示？
+    public static boolean Url_main_Animate_showOrNot = true;
 }
 
 

@@ -7,7 +7,9 @@
     android:layout_height="match_parent"
     tools:context="www.mutou.com.local.LocalMain"
     android:fitsSystemWindows="true"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/MyDark"
+    >
     <!--非菜单布局-->
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar_layout"

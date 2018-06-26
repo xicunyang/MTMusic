@@ -85,8 +85,30 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
 
         //找到控件
         initViews();
-        //进场动画
-        inAnimation();
+
+        //如果正在播放网络文件
+        if(!MyApplication.Url_main_Animate_showOrNot){
+            //去掉那些动画---直接显示内容
+            url_et.setVisibility(View.VISIBLE);
+            url_iv.setVisibility(View.VISIBLE);
+            kuwo_item.setVisibility(View.VISIBLE);
+            kugou_item.setVisibility(View.VISIBLE);
+            search_big_empty.setVisibility(View.GONE);
+
+            switch (MyApplication.isWho){
+                case "kw":
+                    showDot("kw");
+                    AdapterUrlListView_Kuwo adapterUrlListView_kuwo = new AdapterUrlListView_Kuwo(this,MyApplication.allUrlmp3list_kw);
+                    url_listview.setAdapter(adapterUrlListView_kuwo);
+                    if(MyApplication.nowUrlPosition>3){
+                        url_listview.setSelection(MyApplication.nowUrlPosition-3);
+                    }
+                    break;
+            }
+        }else{
+            //进场动画
+            inAnimation();
+        }
     }
     //找到控件
     private void initViews() {
@@ -135,12 +157,14 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
                 kugou_item.setVisibility(View.VISIBLE);
                 //设置位置标示为0
                 MyApplication.nowUrlPosition = -2;
+                //设置UrlMain动画是否显示？
+                MyApplication.Url_main_Animate_showOrNot = false;
 
                 //将第一个的dot进行拉伸---形成下划线
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        showDot("kuwo");
+                        showDot("kw");
                         url_progressbar.setVisibility(View.VISIBLE);
                         //进行歌曲列表集合的获取
                         new Thread(new Runnable() {
@@ -156,7 +180,7 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
         kuwo_item.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDot("kuwo");
+                showDot("kw");
                 url_progressbar.setVisibility(View.VISIBLE);
                 //设置位置标示为0
                 MyApplication.nowUrlPosition = -2;
@@ -173,7 +197,7 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
             @Override
             public void onClick(View v) {
                 MyApplication.nowUrlPosition = -2;
-                showDot("kugou");
+                showDot("kg");
             }
         });
 
@@ -231,6 +255,7 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
             url_progressbar.setVisibility(View.GONE);
         }
     };
+
     private void showDot(String flag){
         //显示之前先将原来的去掉
         ObjectAnimator CkuwoDotScaleX = ObjectAnimator.ofFloat(kuwoDot,"scaleX",50f,0f);
@@ -242,13 +267,13 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
 
         ObjectAnimator DotScaleX = null;
         switch (flag){
-            case "kuwo":
+            case "kw":
                 DotScaleX= ObjectAnimator.ofFloat(kuwoDot,"scaleX",0f,50f);
                 DotScaleX.setDuration(500);
                 DotScaleX.start();
                 kuwoDot.setVisibility(View.VISIBLE);
                 break;
-            case "kugou":
+            case "kg":
                 DotScaleX= ObjectAnimator.ofFloat(kugouDot,"scaleX",0f,50f);
                 DotScaleX.setDuration(500);
                 DotScaleX.start();
@@ -327,8 +352,9 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
         },700);
     }
 
-    //进场动画
+    //进场动画   1
     private void inAnimation() {
+        //大圆圈
         float pianyi = DensityUtil.dip2px(this,110);
         ObjectAnimator searchBigEmpty_scaleX = ObjectAnimator.ofFloat(search_big_empty,"scaleX",1f,0.5f,0.6f,0.7f,0.8f,0.9f,1f);
         ObjectAnimator searchBigEmpty_scaleY = ObjectAnimator.ofFloat(search_big_empty,"scaleY",1f,0.5f,0.6f,0.7f,0.8f,0.9f,1f);
@@ -342,6 +368,7 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
+                //大搜索按钮
                 float pianyi = DensityUtil.dip2px(UrlMain.this,110);
                 ObjectAnimator searchBig_alpha = ObjectAnimator.ofFloat(search_big,"alpha",0f,1f);
                 ObjectAnimator searchBig_scaleX = ObjectAnimator.ofFloat(search_big,"scaleX",1f,1f);
@@ -355,6 +382,7 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
+                        //三个字
                         float pianyi = DensityUtil.dip2px(UrlMain.this,50);
                         ObjectAnimator tv1_translationX = ObjectAnimator.ofFloat(tv_1,"translationX",-pianyi,0f);
                         ObjectAnimator tv2_translationX = ObjectAnimator.ofFloat(tv_2,"translationX",pianyi,0f);
@@ -397,7 +425,7 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         //设置isLocal为false---证明现在就是isUrl，要清空其变量的值吗？我觉得可以不清空
         MyApplication.isLocal = false;
-        MyApplication.nowPosition = 0;
+        MyApplication.nowPosition = -1;
         MyApplication.STOPING = false;
 
         //1.获取到position---使用position进行获取到此条目
@@ -410,6 +438,9 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
                 break;
         }
 
+        if(kuwo_list==null){
+            kuwo_list = MyApplication.allUrlmp3list_kw;
+        }
         MyApplication.nowUrlMp3Info_kw = kuwo_list.get(0).getAbslist()[position];
 
         //先更新位置

@@ -132,7 +132,7 @@ public class LocalMain extends SwipeBackActivity implements AdapterView.OnItemCl
         //*******在这里进行设置----点击了就算是现在是local了
         MyApplication.STOPING = false;
         MyApplication.isLocal = true;
-        MyApplication.nowUrlPosition = 0;
+        MyApplication.nowUrlPosition = -1;
 
         //获取到当前点击的item对应的MP3实体
         MyApplication.nowMp3Info = mp3Infos.get(position);
