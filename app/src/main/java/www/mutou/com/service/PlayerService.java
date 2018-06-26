@@ -13,6 +13,8 @@ import java.io.IOException;
 
 import www.mutou.com.application.MyApplication;
 import www.mutou.com.model.Mp3Info;
+import www.mutou.com.utils.GetKuGouUrlByHash;
+import www.mutou.com.utils.GetKuWoUrlByID;
 
 public class PlayerService extends Service {
     private static final String TAG = "PlayerService";
@@ -54,39 +56,32 @@ public class PlayerService extends Service {
         mp3info = MyApplication.nowMp3Info;
         switch (PLAYFLAG){
             case "STOP2PLAY":
-                Log.d(TAG, "onStartCommand: yxc--->STOP2PLAY");
                 STOP2PLAY();
                 MyApplication.isPlaying_local = true;
                 break;
             case "PLAYNEW":
-                Log.d(TAG, "onStartCommand: yxc--->PLAYNEW");
                 myPlayer.stop();
                 myPlayer.release();
                 STOP2PLAY();
                 MyApplication.isPlaying_local = true;
                 break;
             case "PLAY2PAUSE":
-                Log.d(TAG, "onStartCommand: yxc--->PLAY2PAUSE");
                 PLAY2PAUSE();
                 MyApplication.isPlaying_local = false;
                 break;
             case "PAUSE2PLAY":
-                Log.d(TAG, "onStartCommand: yxc--->PAUSE2PLAY");
                 PAUSE2PLAY();
                 MyApplication.isPlaying_local = true;
                 break;
             case "STOP":
-                Log.d(TAG, "onStartCommand: yxc--->STOP");
                 STOP();
                 MyApplication.isPlaying_local = false;
                 break;
             case "NEXT":
-                Log.d(TAG, "onStartCommand: yxc--->NEXT");
                 NEXT();
                 MyApplication.isPlaying_local = true;
                 break;
             case "PREV":
-                Log.d(TAG, "onStartCommand: yxc--->PREV");
                 PREV();
                 MyApplication.isPlaying_local = true;
                 break;
@@ -107,46 +102,35 @@ public class PlayerService extends Service {
             }
         }
 
-        Log.d(TAG, "URL: 123456 old  "+MyApplication.oldUrlPosition);
-        Log.d(TAG, "URL: 123456 now  "+MyApplication.nowUrlPosition);
-
         String PLAYFLAG = intent.getStringExtra("PLAYFLAG");
         switch (PLAYFLAG){
             case "STOP2PLAY":
-                Log.d(TAG, "URL_onStartCommand: yxc--->STOP2PLAY");
                 STOP2PLAYURL();
                 MyApplication.isPlaying_url = true;
                 break;
             case "PLAYNEW":
-                Log.d(TAG, "URL_onStartCommand: yxc--->PLAYNEW");
-
                 mediaPlayer_url.stop();
                 mediaPlayer_url.release();
                 STOP2PLAYURL();
                 MyApplication.isPlaying_url = true;
                 break;
             case "PLAY2PAUSE":
-                Log.d(TAG, "URL_onStartCommand: yxc--->PLAY2PAUSE");
                 PLAY2PAUSEURL();
                 MyApplication.isPlaying_url = false;
                 break;
             case "PAUSE2PLAY":
-                Log.d(TAG, "URL_onStartCommand: yxc--->PAUSE2PLAY");
                 PAUSE2PLAYURL();
                 MyApplication.isPlaying_url = true;
                 break;
             case "STOP":
-                Log.d(TAG, "URL_onStartCommand: yxc--->STOP");
                 STOPURL();
                 MyApplication.isPlaying_url = false;
                 break;
             case "NEXT":
-                Log.d(TAG, "URL_onStartCommand: yxc--->NEXT");
                 NEXTURL();
                 MyApplication.isPlaying_url = true;
                 break;
             case "PREV":
-                Log.d(TAG, "URL_onStartCommand: yxc--->PREV");
                 PREVURL();
                 MyApplication.isPlaying_url = true;
                 break;
@@ -184,12 +168,21 @@ public class PlayerService extends Service {
 
     //停止-->运行
     private void  STOP2PLAYURL(){
-        switch (MyApplication.isWho){
+        switch (MyApplication.isWho) {
             case "kw":
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        url = getKWMp3Url(MyApplication.nowUrlMp3Info_kw.getMP3RID());
+                        url = new GetKuWoUrlByID().getKWMp3Url(MyApplication.nowUrlMp3Info_kw.getMP3RID());
+                        handler.sendMessage(Message.obtain());
+                    }
+                }).start();
+                break;
+            case "kg":
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        url = new GetKuGouUrlByHash().getUrl(MyApplication.nowUrlMp3Info_kg.getFileHash());
                         handler.sendMessage(Message.obtain());
                     }
                 }).start();
@@ -198,19 +191,15 @@ public class PlayerService extends Service {
             default:
                 break;
         }
-
     }
 
     Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
-            Log.d(TAG, "handleMessage: yxc--->"+url);
-            //mediaPlayer_url = MediaPlayer.create(PlayerService.this, Uri.parse(url));
             mediaPlayer_url = new MediaPlayer();
             try {
                 mediaPlayer_url.setDataSource(PlayerService.this,Uri.parse(url));
-            } catch (IOException e) {
-            }
+            } catch (IOException e) {}
             mediaPlayer_url.prepareAsync();
             mediaPlayer_url.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
@@ -259,19 +248,7 @@ public class PlayerService extends Service {
         myPlayer.start();
     }
 
-    private String getKWMp3Url(String mp3id){
-        Log.d(TAG, "getKWMp3Url: --->"+"i am in");
-        String id = mp3id.substring(4,mp3id.length());
-        String result = "";
-        String url = "http://antiserver.kuwo.cn/anti.s?type=convert_url&rid=MUSIC_"+id+"&format=mp3&response=url";
-        Log.d(TAG, "getKWMp3Url: --->"+url);
-        try {
-            result = HtmlService.getHtml(url);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
+
 
     //发送广播---目的：在修改播放状态后希望更新到UI
     Intent changePlayStuate = new Intent("android.PlayServiceBroad");

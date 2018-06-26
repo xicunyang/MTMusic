@@ -32,9 +32,11 @@ import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 import me.imid.swipebacklayout.lib.SwipeBackLayout;
 import me.imid.swipebacklayout.lib.app.SwipeBackActivity;
+import www.mutou.com.adapter.AdapterUrlListView_Kugou;
 import www.mutou.com.adapter.AdapterUrlListView_Kuwo;
 import www.mutou.com.application.MyApplication;
 import www.mutou.com.local.LocalMain;
+import www.mutou.com.model.KuGouInfo;
 import www.mutou.com.model.KuWoInfo;
 import www.mutou.com.model.Mp3Info;
 import www.mutou.com.mtmusic.MainActivity;
@@ -43,6 +45,8 @@ import www.mutou.com.service.HtmlService;
 import www.mutou.com.service.PlayerService;
 import www.mutou.com.service.testUrlPlayer;
 import www.mutou.com.utils.DensityUtil;
+import www.mutou.com.utils.GetKugouSongs;
+import www.mutou.com.utils.GetKuwoSongs;
 
 public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClickListener {
     private SwipeBackLayout mSwipeBackLayout;
@@ -63,6 +67,7 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
     private final int KUGOU = 2;
     private ListView url_listview;
     private ProgressBar url_progressbar;
+    private List<KuGouInfo> kugou_list;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,11 +103,23 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
             switch (MyApplication.isWho){
                 case "kw":
                     showDot("kw");
+                    url_et.setText(MyApplication.nowSearching);
                     AdapterUrlListView_Kuwo adapterUrlListView_kuwo = new AdapterUrlListView_Kuwo(this,MyApplication.allUrlmp3list_kw);
                     url_listview.setAdapter(adapterUrlListView_kuwo);
                     if(MyApplication.nowUrlPosition>3){
                         url_listview.setSelection(MyApplication.nowUrlPosition-3);
                     }
+                    break;
+                case "kg":
+                    showDot("kg");
+                    url_et.setText(MyApplication.nowSearching);
+                    AdapterUrlListView_Kugou adapterUrlListView_kugou = new AdapterUrlListView_Kugou(this,MyApplication.allUrlmp3list_kg);
+                    url_listview.setAdapter(adapterUrlListView_kugou);
+                    if(MyApplication.nowUrlPosition>3){
+                        url_listview.setSelection(MyApplication.nowUrlPosition-3);
+                    }
+                    break;
+                default:
                     break;
             }
         }else{
@@ -170,7 +187,7 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                getKuwoSongs();
+                                getSongsList(KUWO);
                             }
                         }).start();
                     }
@@ -188,7 +205,7 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        getKuwoSongs();
+                        getSongsList(KUWO);
                     }
                 }).start();
             }
@@ -196,20 +213,25 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
         kugou_item.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MyApplication.nowUrlPosition = -2;
                 showDot("kg");
+                MyApplication.nowUrlPosition = -2;
+                url_progressbar.setVisibility(View.VISIBLE);
+                //设置位置标示为0
+                MyApplication.nowUrlPosition = -2;
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        getSongsList(KUGOU);
+                    }
+                }).start();
+
             }
         });
-
-
     }
 
-    //酷我音乐获取音乐集合
-    private void getKuwoSongs() {
-
+    private void getSongsList(int flag){
         String searchMessage = "";
         if(TextUtils.isEmpty(url_et.getText())){
-            //
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -221,38 +243,51 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
         else{
             searchMessage = url_et.getText().toString();
         }
-        String jsonString = null;
-        //成功获取网页内容
-        try {
-            String url = "http://search.kuwo.cn/r.s?all="+searchMessage+"&ft=music&itemset=web_2013&client=kt&pn=0&rn=120&rformat=json&encoding=utf8";
-            Log.d(TAG, "getKuwoSongs: yxc---"+url);
-            jsonString = HtmlService.getHtml(url);
+        MyApplication.nowSearching = searchMessage;
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        //接下来进行数据解析
-        jsonString = jsonString.replace("\\&", "&");
-        jsonString = jsonString.replace("&nbsp;", " ");
-        jsonString = "[" + jsonString + "]";
-
-
-        //使用阿里的fastJson方法
-        kuwo_list = JSON.parseArray(jsonString,KuWoInfo.class);
         Message message = Message.obtain();
-        message.arg1 = KUWO;
+        switch (flag){
+            case KUWO:
+                kuwo_list = new GetKuwoSongs().getSongs(searchMessage);
+                message.arg1 = KUWO;
+                break;
+            case KUGOU:
+                kugou_list = new GetKugouSongs().getSongs(searchMessage);
+                message.arg1 = KUGOU;
+                break;
+            default:
+                break;
+        }
+
         handler.sendMessage(message);
     }
+
 
     Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            //修改list的值，插入数据---使用不同的Adapter
-            MyApplication.allUrlmp3list_kw = kuwo_list;
-            AdapterUrlListView_Kuwo adapterUrlListView_kuwo = new AdapterUrlListView_Kuwo(UrlMain.this,kuwo_list);
-            url_listview.setAdapter(adapterUrlListView_kuwo);
+            switch (msg.arg1){
+                case KUWO:
+                    //修改list的值，插入数据---使用不同的Adapter
+                    MyApplication.allUrlmp3list_kw = kuwo_list;
+                    AdapterUrlListView_Kuwo adapterUrlListView_kuwo = new AdapterUrlListView_Kuwo(UrlMain.this,kuwo_list);
+                    url_listview.setAdapter(adapterUrlListView_kuwo);
+                    break;
+                case KUGOU:
+                    //修改list的值，插入数据---使用不同的Adapter
+                    MyApplication.allUrlmp3list_kg = kugou_list;
+                    Log.d(TAG, "handleMessage: --->yxchhh");
+                    //添加Adapter
+                    AdapterUrlListView_Kugou adapterUrlListView_kugou= new AdapterUrlListView_Kugou(UrlMain.this,kugou_list);
+                    url_listview.setAdapter(adapterUrlListView_kugou);
+                    break;
+
+                default:
+                    break;
+            }
             url_progressbar.setVisibility(View.GONE);
+
         }
     };
 
@@ -435,13 +470,21 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
         switch (tv_who.getText().toString()){
             case "kw":
                 MyApplication.isWho = "kw";
+                if(kuwo_list==null){
+                    kuwo_list = MyApplication.allUrlmp3list_kw;
+                }
+                MyApplication.nowUrlMp3Info_kw = kuwo_list.get(0).getAbslist()[position];
+                break;
+            case "kg":
+                MyApplication.isWho = "kg";
+                if(kugou_list == null){
+                    kugou_list = MyApplication.allUrlmp3list_kg;
+                }
+                MyApplication.nowUrlMp3Info_kg = kugou_list.get(0).getData()[0].getLists()[position];
+                break;
+            default:
                 break;
         }
-
-        if(kuwo_list==null){
-            kuwo_list = MyApplication.allUrlmp3list_kw;
-        }
-        MyApplication.nowUrlMp3Info_kw = kuwo_list.get(0).getAbslist()[position];
 
         //先更新位置
         MyApplication.oldUrlPosition = MyApplication.nowUrlPosition;

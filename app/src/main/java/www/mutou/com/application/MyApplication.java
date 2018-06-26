@@ -5,6 +5,7 @@ import android.app.Application;
 
 import java.util.List;
 
+import www.mutou.com.model.KuGouInfo;
 import www.mutou.com.model.KuWoInfo;
 import www.mutou.com.model.Mp3Info;
 
@@ -27,9 +28,10 @@ public class MyApplication extends Application{
 
 
     public static KuWoInfo.abslist nowUrlMp3Info_kw;
+    public static KuGouInfo.data.lists nowUrlMp3Info_kg;
     //当前列表的所有歌曲
     public static List<KuWoInfo> allUrlmp3list_kw = null;
-    public static List<Mp3Info> allUrlmp3list_kg = null;
+    public static List<KuGouInfo> allUrlmp3list_kg = null;
 
 
     //设置两个变量存正在使用什么播放
@@ -52,6 +54,8 @@ public class MyApplication extends Application{
 
     //UrlMain动画是否显示？
     public static boolean Url_main_Animate_showOrNot = true;
+    //设置一个变量存储正在搜索的条件
+    public static String nowSearching = "";
 }
 
 

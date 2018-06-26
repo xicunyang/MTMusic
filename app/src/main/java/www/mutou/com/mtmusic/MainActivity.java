@@ -45,6 +45,7 @@ import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 import www.mutou.com.application.MyApplication;
 import www.mutou.com.local.LocalMain;
+import www.mutou.com.model.KuGouInfo;
 import www.mutou.com.model.KuWoInfo;
 import www.mutou.com.model.Mp3Info;
 import www.mutou.com.service.PlayerService;
@@ -231,15 +232,27 @@ public class MainActivity extends AppCompatActivity{
                     }
                     //如果点击下来的瞬间---当前位置已经是第一个了，那么就将当前位置设置为末尾+1
                     if(MyApplication.nowUrlPosition == 0){
-                        if(MyApplication.isWho.equals("kw")){
-                            MyApplication.nowUrlPosition = MyApplication.allUrlmp3list_kw.get(0).getAbslist().length;
+                        switch (MyApplication.isWho){
+                            case "kw":
+                                MyApplication.nowUrlPosition = MyApplication.allUrlmp3list_kw.get(0).getAbslist().length;
+                                break;
+                            case "kg":
+                                MyApplication.nowUrlPosition = MyApplication.allUrlmp3list_kg.get(0).getData()[0].getLists().length;
+                                break;
                         }
                     }
                     //当前播放位置-1
                     MyApplication.nowUrlPosition --;
                     //设置当前播放的音乐实体
-                    if(MyApplication.isWho.equals("kw")) {
-                        MyApplication.nowUrlMp3Info_kw = MyApplication.allUrlmp3list_kw.get(0).getAbslist()[MyApplication.nowUrlPosition];
+                    switch(MyApplication.isWho){
+                        case "kw":
+                            MyApplication.nowUrlMp3Info_kw = MyApplication.allUrlmp3list_kw.get(0).getAbslist()[MyApplication.nowUrlPosition];
+                            break;
+                        case "kg":
+                            MyApplication.nowUrlMp3Info_kg = MyApplication.allUrlmp3list_kg.get(0).getData()[0].getLists()[MyApplication.nowUrlPosition];
+                            break;
+                        default:
+                            break;
                     }
                     //通知Service播放音乐
                     Intent intent = new Intent();
@@ -264,7 +277,6 @@ public class MainActivity extends AppCompatActivity{
                     if(MyApplication.nowPosition == -1){
                         return;
                     }
-
                     //如果点击下来的瞬间---当前位置已经是末尾了，那么就将当前位置设置顶部-1
                     if(MyApplication.nowPosition == MyApplication.allLocalmp3list.size()-1){
                         MyApplication.nowPosition = -1;
@@ -293,17 +305,34 @@ public class MainActivity extends AppCompatActivity{
                         return;
                     }
                     //如果点击下来的瞬间---当前位置已经是第一个了，那么就将当前位置设置为末尾+1
-                    if(MyApplication.nowUrlPosition == MyApplication.allUrlmp3list_kw.get(0).getAbslist().length-1){
-                        if(MyApplication.isWho.equals("kw")){
-                            MyApplication.nowUrlPosition = -1;
-                        }
+                    switch (MyApplication.isWho){
+                        case "kw":
+                            if(MyApplication.nowUrlPosition == MyApplication.allUrlmp3list_kw.get(0).getAbslist().length-1){
+                                MyApplication.nowUrlPosition = -1;
+                            }
+                            break;
+                        case "kg":
+                            if(MyApplication.nowUrlPosition == MyApplication.allUrlmp3list_kg.get(0).getData()[0].getLists().length-1){
+                                MyApplication.nowUrlPosition = -1;
+                            }
+                            break;
+                        default:
+                            break;
                     }
+
                     //当前播放位置-1
                     MyApplication.nowUrlPosition ++;
                     //设置当前播放的音乐实体
                     Log.d(TAG, "onClick: mutou--->"+MyApplication.nowUrlPosition);
-                    if(MyApplication.isWho.equals("kw")) {
-                        MyApplication.nowUrlMp3Info_kw = MyApplication.allUrlmp3list_kw.get(0).getAbslist()[MyApplication.nowUrlPosition];
+                    switch (MyApplication.isWho){
+                        case "kw":
+                            MyApplication.nowUrlMp3Info_kw = MyApplication.allUrlmp3list_kw.get(0).getAbslist()[MyApplication.nowUrlPosition];
+                            break;
+                        case "kg":
+                            MyApplication.nowUrlMp3Info_kg = MyApplication.allUrlmp3list_kg.get(0).getData()[0].getLists()[MyApplication.nowUrlPosition];
+                            break;
+                        default:
+                            break;
                     }
                     //通知Service播放音乐
                     Intent intent = new Intent();
@@ -654,6 +683,13 @@ public class MainActivity extends AppCompatActivity{
                             KuWoInfo.abslist kuwoinfo = MyApplication.nowUrlMp3Info_kw;
                             tv_item_title.setText(kuwoinfo.getSONGNAME());
                             tv_item_singerAlum.setText(kuwoinfo.getARTIST()+"-"+kuwoinfo.getALBUM());
+                            break;
+                        case "kg":
+                            KuGouInfo.data.lists kugouinfo = MyApplication.nowUrlMp3Info_kg;
+                            tv_item_title.setText(kugouinfo.getSongName());
+                            tv_item_singerAlum.setText(kugouinfo.getSingerName()+"-"+kugouinfo.getAlbumName());
+                            break;
+                        default:
                             break;
                     }
                 }

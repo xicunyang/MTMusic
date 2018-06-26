@@ -24,17 +24,13 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:theme="@style/MainTranslucentTheme" >
-
-        </activity>
+            android:theme="@style/MainTranslucentTheme" />
         <activity
             android:name="www.mutou.com.local.LocalMain"
             android:theme="@style/LocalMainTranslucentTheme" />
         <activity
             android:name="www.mutou.com.url.UrlMain"
-            android:theme="@style/LocalMainTranslucentTheme">
-
-        </activity>
+            android:theme="@style/LocalMainTranslucentTheme" />
         <activity
             android:name="www.mutou.com.url.UrlDetails"
             android:theme="@style/LocalMainTranslucentTheme" />
@@ -46,6 +42,10 @@
         <service
             android:name="www.mutou.com.service.testUrlPlayer"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+
+        <activity android:name="www.mutou.com.local.Local" />
+        <activity android:name="www.mutou.com.local.Cache"></activity>
     </application>
+
 </manifest>

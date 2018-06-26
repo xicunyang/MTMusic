@@ -1,5 +1,4 @@
 <resources>
-
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
@@ -49,6 +48,10 @@
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:colorBackgroundCacheHint">@null</item>
         <!--<item name="android:windowIsTranslucent">true</item>-->
+    </style>
+
+    <style name="localMainTabLayout">
+        <item name="android:textSize">13dp</item>
     </style>
 
 </resources>
