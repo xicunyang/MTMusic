@@ -20,6 +20,15 @@ public class KuWoInfo {
         private String ARTIST;
         private String MP3RID;
         private String SONGNAME;
+        private String mp4sig1 = "";
+
+        public String getMp4sig1() {
+            return mp4sig1;
+        }
+
+        public void setMp4sig1(String mp4sig1) {
+            this.mp4sig1 = mp4sig1;
+        }
 
         public String getSONGNAME() {
             return SONGNAME;

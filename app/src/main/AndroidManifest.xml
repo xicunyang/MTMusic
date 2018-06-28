@@ -15,7 +15,10 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".WelcomeActivity"
-            android:theme="@style/ThemeSplash">
+            android:theme="@style/ThemeSplash" />
+        <activity
+            android:name=".MainActivity"
+            android:theme="@style/MainTranslucentTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -23,14 +26,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
-            android:theme="@style/MainTranslucentTheme" />
-        <activity
             android:name="www.mutou.com.local.LocalMain"
             android:theme="@style/LocalMainTranslucentTheme" />
         <activity
             android:name="www.mutou.com.url.UrlMain"
-            android:theme="@style/LocalMainTranslucentTheme" />
+            android:theme="@style/LocalMainTranslucentTheme">
+
+        </activity>
         <activity
             android:name="www.mutou.com.url.UrlDetails"
             android:theme="@style/LocalMainTranslucentTheme" />
@@ -43,9 +45,19 @@
             android:name="www.mutou.com.service.testUrlPlayer"
             android:enabled="true"
             android:exported="true" />
+        <service
+            android:name="www.mutou.com.service.testDetailService"
+            android:enabled="true"
+            android:exported="true" />
 
         <activity android:name="www.mutou.com.local.Local" />
-        <activity android:name="www.mutou.com.local.Cache"></activity>
+        <activity android:name="www.mutou.com.local.Cache" />
+        <activity android:name="www.mutou.com.url.UrlMV" />
+        <activity android:name=".DetailActivity"
+            android:theme="@style/MainTranslucentTheme"
+            >
+
+        </activity>
     </application>
 
 </manifest>

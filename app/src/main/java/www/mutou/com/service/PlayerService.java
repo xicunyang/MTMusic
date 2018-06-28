@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -23,30 +24,31 @@ public class PlayerService extends Service {
     private MediaPlayer mediaPlayer_url = null;
     private String url;
 
-    public PlayerService() {}
+    public PlayerService() {
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        switch (intent.getStringExtra("WHO")){
+        switch (intent.getStringExtra("WHO")) {
             case "LOCAL":
                 LOCAL(intent);
                 break;
-
             case "URL":
                 try {
                     URL(intent);
-                }catch (Exception e){
-                    return super.onStartCommand(intent, flags, startId);
+                } catch (Exception e) {
+
                 }
+
                 break;
         }
         return super.onStartCommand(intent, flags, startId);
     }
 
     //本地音乐的解决方案
-    private void LOCAL(Intent intent){
-        if(mediaPlayer_url!=null){
-            if(mediaPlayer_url.isLooping()){
+    private void LOCAL(Intent intent) {
+        if (mediaPlayer_url != null) {
+            if (mediaPlayer_url.isLooping()) {
                 mediaPlayer_url.stop();
                 mediaPlayer_url.release();
                 mediaPlayer_url = null;
@@ -54,7 +56,7 @@ public class PlayerService extends Service {
         }
         String PLAYFLAG = intent.getStringExtra("PLAYFLAG");
         mp3info = MyApplication.nowMp3Info;
-        switch (PLAYFLAG){
+        switch (PLAYFLAG) {
             case "STOP2PLAY":
                 STOP2PLAY();
                 MyApplication.isPlaying_local = true;
@@ -93,9 +95,9 @@ public class PlayerService extends Service {
     }
 
     //网络音乐的解决方案
-    private void URL(Intent intent){
-        if(myPlayer!=null){
-            if(myPlayer.isLooping()){
+    private void URL(Intent intent) {
+        if (myPlayer != null) {
+            if (myPlayer.isLooping()) {
                 myPlayer.stop();
                 myPlayer.release();
                 myPlayer = null;
@@ -103,7 +105,7 @@ public class PlayerService extends Service {
         }
 
         String PLAYFLAG = intent.getStringExtra("PLAYFLAG");
-        switch (PLAYFLAG){
+        switch (PLAYFLAG) {
             case "STOP2PLAY":
                 STOP2PLAYURL();
                 MyApplication.isPlaying_url = true;
@@ -167,7 +169,7 @@ public class PlayerService extends Service {
 
 
     //停止-->运行
-    private void  STOP2PLAYURL(){
+    private void STOP2PLAYURL() {
         switch (MyApplication.isWho) {
             case "kw":
                 new Thread(new Runnable() {
@@ -193,13 +195,14 @@ public class PlayerService extends Service {
         }
     }
 
-    Handler handler = new Handler(){
+    Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             mediaPlayer_url = new MediaPlayer();
             try {
-                mediaPlayer_url.setDataSource(PlayerService.this,Uri.parse(url));
-            } catch (IOException e) {}
+                mediaPlayer_url.setDataSource(PlayerService.this, Uri.parse(url));
+            } catch (IOException e) {
+            }
             mediaPlayer_url.prepareAsync();
             mediaPlayer_url.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
@@ -214,53 +217,107 @@ public class PlayerService extends Service {
     };
 
     //停止-->运行
-    private void STOP2PLAY(){
-        myPlayer = MediaPlayer.create(PlayerService.this, Uri.parse("file://"+mp3info.getFileUrl()));
+    private void STOP2PLAY() {
+        Log.e(TAG, "onStartCommand: 6");
+        myPlayer = MediaPlayer.create(PlayerService.this, Uri.parse("file://" + mp3info.getFileUrl()));
+        Log.e(TAG, "STOP2PLAY: ---url--->" + mp3info.getFileUrl());
         myPlayer.setLooping(true);
         myPlayer.start();
     }
+
     //运行-->暂停
-    private void PLAY2PAUSE(){
+    private void PLAY2PAUSE() {
         myPlayer.pause();
     }
+
     //暂停-->运行
-    private void PAUSE2PLAY(){
+    private void PAUSE2PLAY() {
         myPlayer.start();
     }
+
     //停止
-    private void STOP(){
+    private void STOP() {
         myPlayer.stop();
     }
+
     //下一曲
-    private void NEXT(){
+    private void NEXT() {
         myPlayer.stop();
         myPlayer.release();
-        myPlayer = MediaPlayer.create(PlayerService.this, Uri.parse("file://"+mp3info.getFileUrl()));
+        myPlayer = MediaPlayer.create(PlayerService.this, Uri.parse("file://" + mp3info.getFileUrl()));
         myPlayer.setLooping(true);
         myPlayer.start();
     }
+
     //上一曲
     private void PREV() {
         myPlayer.stop();
         myPlayer.release();
-        myPlayer = MediaPlayer.create(PlayerService.this, Uri.parse("file://"+mp3info.getFileUrl()));
+        myPlayer = MediaPlayer.create(PlayerService.this, Uri.parse("file://" + mp3info.getFileUrl()));
         myPlayer.setLooping(true);
         myPlayer.start();
     }
 
 
-
     //发送广播---目的：在修改播放状态后希望更新到UI
     Intent changePlayStuate = new Intent("android.PlayServiceBroad");
-    private void sendBroadCastToUI(){
+
+    private void sendBroadCastToUI() {
         //不传具体参数了，根据全局isPlaying来判断
-        changePlayStuate.putExtra("WHAT","changePlayOrPause");
+        changePlayStuate.putExtra("WHAT", "changePlayOrPause");
         sendBroadcast(changePlayStuate);
     }
+
     @Override
     public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
+        return new MyBind();
+    }
+
+    public class MyBind extends Binder {
+        //获取歌曲时长
+        public int getDuration() {
+            Log.e(TAG, "getDuration: isPlaying_url?--->" + MyApplication.isPlaying_url);
+            Log.e(TAG, "getDuration: isPlaying_local?--->" + MyApplication.isPlaying_local);
+            int duration = 0;
+            if (MyApplication.isLocal) {
+                if (myPlayer != null) {
+                    duration = myPlayer.getDuration();
+                }
+            } else {
+                if (mediaPlayer_url != null) {
+                    duration = mediaPlayer_url.getDuration();
+                }
+            }
+            return duration;
+        }
+
+        //获取实时位置
+        public int getCurrentPosition() {
+            int pos = 0;
+            if (MyApplication.isLocal) {
+                if (myPlayer != null) {
+                    pos = myPlayer.getCurrentPosition();
+                }
+            } else {
+                if (mediaPlayer_url != null) {
+                    pos = mediaPlayer_url.getCurrentPosition();
+                }
+            }
+            return pos;
+        }
+
+        //设置歌曲播放位置
+        public void setSeekTo(int position) {
+            if (MyApplication.isLocal) {
+                if (myPlayer != null) {
+                    myPlayer.seekTo(position);
+                }
+            } else {
+                if (mediaPlayer_url != null) {
+                    mediaPlayer_url.seekTo(position);
+                }
+            }
+        }
     }
 }
 

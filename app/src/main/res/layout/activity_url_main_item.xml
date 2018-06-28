@@ -52,14 +52,16 @@
                     android:layout_height="10dp"
                     android:src="@drawable/url_mv"
                     android:layout_marginTop="2dp"
+                    android:visibility="gone"
+                    android:layout_marginRight="7dp"
                     />
                 <ImageView
                     android:id="@+id/url_detail_hq"
                     android:layout_width="15dp"
                     android:layout_height="10dp"
                     android:src="@drawable/hq"
-                    android:layout_marginLeft="7dp"
                     android:layout_marginTop="2dp"
+                    android:layout_marginRight="7dp"
                     android:visibility="gone"
                     />
                 <TextView
@@ -68,7 +70,7 @@
                     android:layout_height="wrap_content"
                     android:text="赵雷-赵小雷"
                     android:textColor="#99ffffff"
-                    android:layout_marginLeft="7dp"
+                    android:layout_marginRight="7dp"
                     android:textSize="11dp"
                     android:ellipsize="end"
                     android:singleLine="true"
@@ -79,7 +81,7 @@
                     android:layout_height="wrap_content"
                     android:text=""
                     android:textColor="#99ffffff"
-                    android:layout_marginLeft="7dp"
+                    android:layout_marginRight="7dp"
                     android:textSize="11dp"
                     android:visibility="visible"
                     />
@@ -92,6 +94,13 @@
                     />
                 <TextView
                     android:id="@+id/url_detail_who"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:visibility="invisible"
+                    />
+                <TextView
+                    android:id="@+id/url_detail_mvUrl"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text=""

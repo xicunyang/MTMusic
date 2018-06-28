@@ -10,6 +10,6 @@ import android.util.Log;
 public class testKUGOU extends InstrumentationTestCase {
     private static final String TAG = "testKUGOU";
     public void test() throws Exception{
-        Log.d(TAG, "test: ooo");
+        Log.d(TAG, "test_xml: ooo");
     }
 }

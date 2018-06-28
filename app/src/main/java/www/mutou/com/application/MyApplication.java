@@ -56,6 +56,8 @@ public class MyApplication extends Application{
     public static boolean Url_main_Animate_showOrNot = true;
     //设置一个变量存储正在搜索的条件
     public static String nowSearching = "";
+    //设置一个变量存储正在播放的明白mvURL
+    public static String nowPlayingMvUrl = "";
 }
 
 

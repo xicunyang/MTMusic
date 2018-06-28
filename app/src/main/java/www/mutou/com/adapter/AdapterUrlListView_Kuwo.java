@@ -1,6 +1,7 @@
 package www.mutou.com.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,8 @@ import java.util.List;
 import www.mutou.com.application.MyApplication;
 import www.mutou.com.model.KuWoInfo;
 import www.mutou.com.mtmusic.R;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by 木头 on 2018/6/25.
@@ -66,6 +69,7 @@ public class AdapterUrlListView_Kuwo extends BaseAdapter{
             viewHolder.tv_id = (TextView) convertView.findViewById(R.id.url_detail_id);
             viewHolder.tv_url = (TextView) convertView.findViewById(R.id.url_detail_url);
             viewHolder.tv_who = (TextView) convertView.findViewById(R.id.url_detail_who);
+            viewHolder.iv_mvUrl = (TextView) convertView.findViewById(R.id.url_detail_mvUrl);
             //将viewHolder存入convertView中
             convertView.setTag(viewHolder);
         }
@@ -78,12 +82,14 @@ public class AdapterUrlListView_Kuwo extends BaseAdapter{
 
         //以上解决之后---开始设置值
         viewHolder.tv_title.setText(kuWoInfos.get(0).getAbslist()[position].getSONGNAME());
+
         viewHolder.tv_singerAlum.setText(kuWoInfos.get(0).getAbslist()[position].getARTIST()+"-"
                 +kuWoInfos.get(0).getAbslist()[position].getALBUM());
+
         viewHolder.iv_hq.setVisibility(View.VISIBLE);
 
 
-//        Log.d(TAG, "getView: yxc--nowPosition--->"+MyApplication.nowPosition+"  position---"+position);
+
         //这个position不是我想的position---而是当前视图内的position
         if(MyApplication.nowUrlPosition == position){
             viewHolder.iv_playing_flag.setVisibility(View.VISIBLE);
@@ -94,6 +100,15 @@ public class AdapterUrlListView_Kuwo extends BaseAdapter{
 
         viewHolder.tv_url.setText(kuWoInfos.get(0).getAbslist()[position].getMP3RID());
         viewHolder.tv_who.setText("kw");
+        viewHolder.iv_mvUrl.setText(kuWoInfos.get(0).getAbslist()[position].getMp4sig1());
+        Log.e(TAG, "getView: "+kuWoInfos.get(0).getAbslist()[position].getSONGNAME()
+        +"   "+kuWoInfos.get(0).getAbslist()[position].getMp4sig1());
+        if(!kuWoInfos.get(0).getAbslist()[position].getMp4sig1().equals("0")){
+            viewHolder.iv_detail_mv.setVisibility(View.VISIBLE);
+        }
+        else{
+            viewHolder.iv_detail_mv.setVisibility(View.GONE);
+        }
         return convertView;
     }
 
@@ -106,6 +121,7 @@ public class AdapterUrlListView_Kuwo extends BaseAdapter{
         TextView tv_id;
         TextView tv_url;
         TextView tv_who;
+        TextView iv_mvUrl;
     }
 }
 

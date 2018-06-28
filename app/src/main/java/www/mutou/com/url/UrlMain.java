@@ -3,6 +3,7 @@ package www.mutou.com.url;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.ActivityOptions;
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
@@ -13,9 +14,14 @@ import android.text.TextUtils;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -25,6 +31,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
+
+import org.w3c.dom.Text;
 
 import java.net.URL;
 import java.util.List;
@@ -48,7 +56,7 @@ import www.mutou.com.utils.DensityUtil;
 import www.mutou.com.utils.GetKugouSongs;
 import www.mutou.com.utils.GetKuwoSongs;
 
-public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClickListener {
+public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClickListener,AdapterView.OnItemLongClickListener,View.OnClickListener{
     private SwipeBackLayout mSwipeBackLayout;
     private CircleImageView search_big;
     private CircleImageView search_big_empty;
@@ -68,6 +76,7 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
     private ListView url_listview;
     private ProgressBar url_progressbar;
     private List<KuGouInfo> kugou_list;
+    private Dialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,21 +156,30 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
         //找到listview控件
         url_listview = (ListView) findViewById(R.id.urlMain_listview);
         url_listview.setOnItemClickListener(this);
+        url_listview.setOnItemLongClickListener(this);
         //进度条
         url_progressbar = (ProgressBar) findViewById(R.id.url_progressbar);
 
         //设置大搜索按钮点击事件
-        search_big_empty.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        search_big_empty.setOnClickListener(this);
+        //设置小搜索按钮的点击事件
+        url_iv.setOnClickListener(this);
+        kuwo_item.setOnClickListener(this);
+        kugou_item.setOnClickListener(this);
+
+
+
+    }
+
+    //点击事件
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.url_search_big_empty:
                 //圆圈上移+放大镜上移+搜索框淡入+搜索按钮淡入
                 zcAnimation();
-            }
-        });
-        //设置小搜索按钮的点击事件
-        url_iv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+                break;
+            case R.id.url_search_iv:
                 //显示酷我酷狗搜索按钮
                 ObjectAnimator kuwoItemAlpha = ObjectAnimator.ofFloat(kuwo_item,"alpha",0f,1f);
                 ObjectAnimator kugouItemAlpha = ObjectAnimator.ofFloat(kugou_item,"alpha",0f,1f);
@@ -192,11 +210,8 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
                         }).start();
                     }
                 },500);
-            }
-        });
-        kuwo_item.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+                break;
+            case R.id.kuwo_item:
                 showDot("kw");
                 url_progressbar.setVisibility(View.VISIBLE);
                 //设置位置标示为0
@@ -208,11 +223,8 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
                         getSongsList(KUWO);
                     }
                 }).start();
-            }
-        });
-        kugou_item.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+                break;
+            case R.id.kugou_item:
                 showDot("kg");
                 MyApplication.nowUrlPosition = -2;
                 url_progressbar.setVisibility(View.VISIBLE);
@@ -224,9 +236,24 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
                         getSongsList(KUGOU);
                     }
                 }).start();
-
-            }
-        });
+                break;
+            case R.id.urlMain_bottom_download:
+                Toast.makeText(this, "进入下载页面", Toast.LENGTH_SHORT).show();
+                dialog.hide();
+                break;
+            case R.id.urlMain_bottom_like:
+                Toast.makeText(this, "您已添加收藏，感谢您的支持", Toast.LENGTH_SHORT).show();
+                dialog.hide();
+                break;
+            case R.id.urlMain_bottom_playmv:
+                dialog.hide();
+                Intent intent = new Intent();
+                intent.setClass(UrlMain.this,UrlMV.class);
+                startActivity(intent);
+                break;
+            default:
+                break;
+        }
     }
 
     private void getSongsList(int flag){
@@ -571,6 +598,61 @@ public class UrlMain extends SwipeBackActivity implements AdapterView.OnItemClic
         ImageView iv = (ImageView) v.findViewById(R.id.url_detail_playing_flag);
         iv.setVisibility(visible);
     }
+
+    //长摁事件
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        View v = url_listview.getChildAt(position-url_listview.getFirstVisiblePosition());
+        TextView tv_mvUrl = (TextView) v.findViewById(R.id.url_detail_mvUrl);
+        TextView tv_mp3ID = (TextView) v.findViewById(R.id.url_detail_url);
+        TextView tv_who = (TextView) v.findViewById(R.id.url_detail_who);
+        if(tv_mvUrl.getText().equals("0")){
+            //自定义底部弹出Dialog
+            setDialog(false);
+        }
+        else{
+            //自定义底部弹出Dialog
+            setDialog(true);
+            MyApplication.nowPlayingMvUrl = tv_mp3ID.getText().toString().substring(4,tv_mp3ID.getText().toString().length());
+        }
+        return true;
+    }
+    private void setDialog(boolean showMvOrNot){
+        dialog = new Dialog(this, R.style.BottomDialog);
+        LinearLayout root = (LinearLayout) LayoutInflater.from(this).inflate(
+                R.layout.url_main_bottom_dialog,null
+        );
+        //初始化视图
+        Button btn_download = (Button) root.findViewById(R.id.urlMain_bottom_download);
+        Button btn_like = (Button) root.findViewById(R.id.urlMain_bottom_like);
+        Button btn_playMv = (Button) root.findViewById(R.id.urlMain_bottom_playmv);
+        btn_download.setOnClickListener(this);
+        btn_like.setOnClickListener(this);
+        btn_playMv.setOnClickListener(this);
+
+        if(!showMvOrNot){
+            btn_playMv.setVisibility(View.GONE);
+        }
+        else{
+            btn_playMv.setVisibility(View.VISIBLE);
+        }
+
+        dialog.setContentView(root);
+        Window dialogWindow = dialog.getWindow();
+        dialogWindow.setGravity(Gravity.BOTTOM);
+
+        WindowManager.LayoutParams lp = dialogWindow.getAttributes();
+        lp.x = 0;
+        lp.y = 0;
+
+        lp.width = getResources().getDisplayMetrics().widthPixels;
+        root.measure(0,0);
+        lp.height = root.getMeasuredHeight();
+        lp.alpha = 9f;
+        dialogWindow.setAttributes(lp);
+        dialog.show();
+    }
+
 }
 
 

@@ -1,222 +1,226 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    >
+    android:fitsSystemWindows="true">
+
     <android.support.v4.widget.DrawerLayout
         android:id="@+id/main_drawer_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:layout_height="match_parent">
 
         <!--DrawerLayout是一个可以左滑进入菜单的布局-->
-        <android.support.design.widget.CoordinatorLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
+        <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            xmlns:app="http://schemas.android.com/apk/res-auto">
+            android:layout_height="match_parent">
             <!--非菜单布局-->
             <android.support.design.widget.AppBarLayout
                 android:id="@+id/appbar_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
+
                 <android.support.v7.widget.Toolbar
                     android:id="@+id/toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    app:layout_collapseMode="pin"
+                    android:background="@color/MyDark"
                     android:theme="@style/toolbar_theme"
-                    android:background="@color/MyDark">
+                    app:layout_collapseMode="pin">
+
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
+
                         <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="MTMusic"
-                        android:textSize="20dp"
-                        android:textColor="#fff"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="70dp"/>
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="70dp"
+                            android:text="MTMusic"
+                            android:textColor="#fff"
+                            android:textSize="20dp" />
                     </RelativeLayout>
                 </android.support.v7.widget.Toolbar>
-        </android.support.design.widget.AppBarLayout>
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/MyDark">
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/circleView_local"
-                android:layout_centerInParent="true"
-                android:layout_width="140dp"
-                android:layout_height="140dp"
-                android:src="@drawable/local"
-                app:civ_border_color="#fff"
-                app:civ_border_width="2dp"/>
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/circleView_url"
-                android:layout_centerInParent="true"
-                android:layout_width="140dp"
-                android:layout_height="140dp"
-                android:src="@drawable/url"
-                app:civ_border_color="#fff"
-                app:civ_border_width="2dp"/>
-            <LinearLayout
-                android:id="@+id/fab_items"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="19dp"
-                android:padding="10dp"
-                android:visibility="gone"
-                android:layout_above="@+id/main_fab"
-                >
-                <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/prev"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:borderWidth="0px"
-                    app:fabSize="mini"
-                    app:elevation="5dp"
-                    android:src="@drawable/prev"
-                    app:rippleColor="#fff"
-                    app:pressedTranslationZ="16dp"
-                    app:backgroundTint="#2c2c2b"
-                    android:visibility="visible"
-                    android:layout_marginBottom="10dp"
-                    />
-                <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/playOrPause"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:borderWidth="0px"
-                    app:fabSize="mini"
-                    app:elevation="5dp"
-                    android:src="@drawable/pausing"
-                    app:rippleColor="#fff"
-                    app:pressedTranslationZ="16dp"
-                    app:backgroundTint="#2c2c2b"
-                    android:visibility="visible"
-                    android:layout_marginBottom="10dp"
-                    />
-                <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/next"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:borderWidth="0px"
-                    app:fabSize="mini"
-                    app:elevation="5dp"
-                    android:src="@drawable/next"
-                    app:rippleColor="#fff"
-                    app:pressedTranslationZ="16dp"
-                    app:backgroundTint="#2c2c2b"
-                    android:visibility="visible"
-                    />
-            </LinearLayout>
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/main_fab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:borderWidth="0px"
-                app:fabSize="normal"
-                app:elevation="15dp"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentBottom="true"
-                android:layout_marginBottom="20dp"
-                android:layout_marginRight="20dp"
-                android:src="@drawable/fab_main"
-                app:rippleColor="#5c5c5b"
-                app:pressedTranslationZ="16dp"
-                app:backgroundTint="#2c2c2b"
-                android:visibility="gone"
-                />
-            <LinearLayout
-                android:id="@+id/ll_nowPlayItem"
-                android:layout_width="200dp"
-                android:layout_height="45dp"
-                android:layout_toLeftOf="@+id/main_fab"
-                android:layout_alignParentBottom="true"
-                android:layout_marginBottom="23dp"
-                android:background="@drawable/main_nowplayitem_style"
-                android:layout_marginRight="10dp"
-                android:visibility="gone"
-                >
-                <ImageView
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/item_flag"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="3dp"
-                    />
+            </android.support.design.widget.AppBarLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/MyDark">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/circleView_local"
+                    android:layout_width="140dp"
+                    android:layout_height="140dp"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/local"
+                    app:civ_border_color="#fff"
+                    app:civ_border_width="2dp" />
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/circleView_url"
+                    android:layout_width="140dp"
+                    android:layout_height="140dp"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/url"
+                    app:civ_border_color="#fff"
+                    app:civ_border_width="2dp" />
+
                 <LinearLayout
-                    android:layout_weight="7"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:id="@+id/fab_items"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@+id/main_fab"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="19dp"
                     android:orientation="vertical"
-                    >
+                    android:padding="10dp"
+                    android:visibility="gone">
+
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/prev"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:src="@drawable/prev"
+                        android:visibility="visible"
+                        app:backgroundTint="#2c2c2b"
+                        app:borderWidth="0px"
+                        app:elevation="5dp"
+                        app:fabSize="mini"
+                        app:pressedTranslationZ="16dp"
+                        app:rippleColor="#fff" />
+
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/playOrPause"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:src="@drawable/pausing"
+                        android:visibility="visible"
+                        app:backgroundTint="#2c2c2b"
+                        app:borderWidth="0px"
+                        app:elevation="5dp"
+                        app:fabSize="mini"
+                        app:pressedTranslationZ="16dp"
+                        app:rippleColor="#fff" />
+
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/next"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/next"
+                        android:visibility="visible"
+                        app:backgroundTint="#2c2c2b"
+                        app:borderWidth="0px"
+                        app:elevation="5dp"
+                        app:fabSize="mini"
+                        app:pressedTranslationZ="16dp"
+                        app:rippleColor="#fff" />
+                </LinearLayout>
+
+                <android.support.design.widget.FloatingActionButton
+                    android:id="@+id/main_fab"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginRight="20dp"
+                    android:src="@drawable/fab_main"
+                    android:visibility="gone"
+                    app:backgroundTint="#2c2c2b"
+                    app:borderWidth="0px"
+                    app:elevation="15dp"
+                    app:fabSize="normal"
+                    app:pressedTranslationZ="16dp"
+                    app:rippleColor="#5c5c5b" />
+
+                <LinearLayout
+                    android:id="@+id/ll_nowPlayItem"
+                    android:layout_width="200dp"
+                    android:layout_height="45dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="23dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_toLeftOf="@+id/main_fab"
+                    android:background="@drawable/main_nowplayitem_style"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="3dp"
+                        android:layout_weight="1"
+                        android:src="@drawable/item_flag" />
+
                     <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="4">
-                        <TextView
-                            android:id="@+id/main_item_title"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="7"
+                        android:orientation="vertical">
+
+                        <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="已是两条路上的人"
-                            android:textColor="#fff"
-                            android:layout_gravity="center_vertical"
-                            android:paddingLeft="2dp"
-                            android:textSize="16sp"
-                            android:ellipsize="end"
-                            android:singleLine="true"
-                            />
+                            android:layout_height="0dp"
+                            android:layout_weight="4">
 
-                    </LinearLayout>
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="2">
-                        <ImageView
-                            android:layout_width="10dp"
-                            android:layout_height="match_parent"
-                            android:src="@drawable/finish_download"
-                            android:layout_marginLeft="3dp"
-                            android:layout_marginBottom="3dp"
-                            />
-                        <TextView
-                            android:id="@+id/main_item_singerAlum"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:text="赵雷-赵小雷"
-                            android:textColor="#fff"
-                            android:textSize="10sp"
-                            android:layout_marginLeft="10dp"
-                            android:ellipsize="end"
-                            android:singleLine="true"
-                            />
+                            <TextView
+                                android:id="@+id/main_item_title"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_vertical"
+                                android:ellipsize="end"
+                                android:paddingLeft="2dp"
+                                android:singleLine="true"
+                                android:text="已是两条路上的人"
+                                android:textColor="#fff"
+                                android:textSize="16sp" />
 
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="2">
+
+                            <ImageView
+                                android:layout_width="10dp"
+                                android:layout_height="match_parent"
+                                android:layout_marginBottom="3dp"
+                                android:layout_marginLeft="3dp"
+                                android:src="@drawable/finish_download" />
+
+                            <TextView
+                                android:id="@+id/main_item_singerAlum"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_marginLeft="10dp"
+                                android:ellipsize="end"
+                                android:singleLine="true"
+                                android:text="赵雷-赵小雷"
+                                android:textColor="#fff"
+                                android:textSize="10sp" />
+                        </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
 
-
-            </LinearLayout>
-
-        </RelativeLayout>
+            </RelativeLayout>
         </android.support.design.widget.CoordinatorLayout>
+
         <android.support.design.widget.NavigationView
+            android:id="@+id/main_nav"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="start"
-            app:headerLayout="@layout/navigation_header"
-            app:menu="@layout/navigation_menu"
             android:background="@color/MyDark"
-            app:itemTextColor="#ddffffff">
-        <!--菜单布局-->
+            app:headerLayout="@layout/navigation_header"
+            app:itemTextColor="#ddffffff"
+            app:menu="@layout/navigation_menu">
+            <!--菜单布局-->
         </android.support.design.widget.NavigationView>
 
     </android.support.v4.widget.DrawerLayout>

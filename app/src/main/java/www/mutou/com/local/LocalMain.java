@@ -45,9 +45,6 @@ public class LocalMain extends SwipeBackActivity{
         // 滑动退出的效果只能从边界滑动才有效果，如果要扩大touch的范围，可以调用这个方法
         //mSwipeBackLayout.setEdgeSize(200);
 
-        //淡入效果，很不错
-        Transition explode = TransitionInflater.from(this).inflateTransition(android.R.transition.fade);
-        getWindow().setEnterTransition(explode);
         setContentView(R.layout.activity_local_main);
 
 

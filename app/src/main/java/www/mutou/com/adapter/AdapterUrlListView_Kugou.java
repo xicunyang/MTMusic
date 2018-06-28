@@ -66,6 +66,7 @@ public class AdapterUrlListView_Kugou extends BaseAdapter{
             viewHolder.tv_id = (TextView) convertView.findViewById(R.id.url_detail_id);
             viewHolder.tv_url = (TextView) convertView.findViewById(R.id.url_detail_url);
             viewHolder.tv_who = (TextView) convertView.findViewById(R.id.url_detail_who);
+            viewHolder.tv_mvUrl = (TextView) convertView.findViewById(R.id.url_detail_mvUrl);
             //将viewHolder存入convertView中
             convertView.setTag(viewHolder);
         }
@@ -95,7 +96,8 @@ public class AdapterUrlListView_Kugou extends BaseAdapter{
         }
 
         viewHolder.tv_url.setText(lists.getFileHash());
-        viewHolder.tv_who.setText("kg");
+        viewHolder.tv_who.setText("kg");//mp4sig1
+        viewHolder.tv_mvUrl.setText("0");
         return convertView;
     }
 
@@ -108,6 +110,7 @@ public class AdapterUrlListView_Kugou extends BaseAdapter{
         TextView tv_id;
         TextView tv_url;
         TextView tv_who;
+        TextView tv_mvUrl;
     }
 }
 
