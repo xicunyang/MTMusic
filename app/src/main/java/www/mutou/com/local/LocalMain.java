@@ -3,12 +3,14 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -64,6 +66,11 @@ public class LocalMain extends SwipeBackActivity{
 
         //显示返回按钮
         setToolBar();
+
+
+
+
+
     }
 
     //显示ToolBar的返回按钮

@@ -60,6 +60,42 @@
         android:layout_marginLeft="-18dp"
         android:visibility="invisible"
         />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        >
+
+        <TextView
+            android:id="@+id/myname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="杨喜存"
+            android:textColor="#fff"
+            android:textSize="25sp"
+            android:visibility="gone"
+            />
+        <TextView
+            android:id="@+id/myclass"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="软外一班"
+            android:textColor="#fff"
+            android:textSize="25sp"
+            android:visibility="gone"
+            />
+        <TextView
+            android:id="@+id/mynums"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="15021440078"
+            android:textColor="#fff"
+            android:textSize="25sp"
+            android:visibility="gone"
+            />
+    </LinearLayout>
 
 
 

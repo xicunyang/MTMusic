@@ -1,12 +1,14 @@
 package www.mutou.com.url;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -17,6 +19,7 @@ import android.widget.VideoView;
 import www.mutou.com.application.MyApplication;
 import www.mutou.com.mtmusic.R;
 import www.mutou.com.utils.GetKuwoMvUrl;
+import www.mutou.com.utils.PlayerControls;
 
 import static android.content.ContentValues.TAG;
 
@@ -81,4 +84,16 @@ public class UrlMV extends Activity {
             }
         }).start();
     }
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            PlayerControls playerControls = new PlayerControls(this);
+            playerControls.playOrPause();
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
 }

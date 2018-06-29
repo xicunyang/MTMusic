@@ -209,6 +209,7 @@ public class PlayerService extends Service {
                 public void onPrepared(MediaPlayer mp) {
                     mediaPlayer_url.setLooping(true);
                     mediaPlayer_url.start();
+                    sendBroadCastToCacheOK();
                 }
             });
 
@@ -223,6 +224,7 @@ public class PlayerService extends Service {
         Log.e(TAG, "STOP2PLAY: ---url--->" + mp3info.getFileUrl());
         myPlayer.setLooping(true);
         myPlayer.start();
+        sendBroadCastToCacheOK();
     }
 
     //运行-->暂停
@@ -265,6 +267,12 @@ public class PlayerService extends Service {
     private void sendBroadCastToUI() {
         //不传具体参数了，根据全局isPlaying来判断
         changePlayStuate.putExtra("WHAT", "changePlayOrPause");
+        sendBroadcast(changePlayStuate);
+    }
+
+    private void sendBroadCastToCacheOK() {
+        //不传具体参数了，根据全局isPlaying来判断
+        changePlayStuate.putExtra("WHAT", "cacheOK");
         sendBroadcast(changePlayStuate);
     }
 

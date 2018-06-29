@@ -1,5 +1,6 @@
 package www.mutou.com.local;
 
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
@@ -14,6 +15,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Toast;
+
+import com.melnykov.fab.FloatingActionButton;
 
 import java.io.Serializable;
 import java.util.List;
@@ -22,14 +26,19 @@ import me.imid.swipebacklayout.lib.SwipeBackLayout;
 import www.mutou.com.adapter.AdapterLocalListView;
 import www.mutou.com.application.MyApplication;
 import www.mutou.com.model.Mp3Info;
+import www.mutou.com.mtmusic.DetailActivity;
+import www.mutou.com.mtmusic.MainActivity;
 import www.mutou.com.mtmusic.R;
 import www.mutou.com.service.PlayerService;
 import www.mutou.com.utils.AudioUtils;
+import www.mutou.com.utils.LocalItemClick;
 
 public class Local extends Fragment implements AdapterView.OnItemClickListener{
     private ListView listView_localMain;
     private static final String TAG = "Local";
     private List<Mp3Info> mp3Infos;
+    private FloatingActionButton fab;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -40,6 +49,20 @@ public class Local extends Fragment implements AdapterView.OnItemClickListener{
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         getAllMp3Files();
+
+    }
+    //入场动画
+    private void inAnimation(){
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ObjectAnimator fab_translationY = ObjectAnimator.ofFloat(fab,"translationY",100f,-20f,0f);
+                fab_translationY.setDuration(500);
+                fab_translationY.start();
+                fab.setVisibility(View.VISIBLE);
+            }
+        },1000);
+
     }
     //获取到本地所有MP3文件
     private void getAllMp3Files(){
@@ -87,7 +110,24 @@ public class Local extends Fragment implements AdapterView.OnItemClickListener{
         listView_localMain = (ListView) getActivity().findViewById(R.id.local_listview);
         AdapterLocalListView adapterLocalListView = new AdapterLocalListView(getActivity(),mp3Infos);
         listView_localMain.setAdapter(adapterLocalListView);
+        //测试悬浮按钮
+        fab = (FloatingActionButton) getActivity().findViewById(R.id.local_main_fab);
 
+        fab.attachToListView(listView_localMain);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(MyApplication.isPlaying_url||MyApplication.isPlaying_local){
+                    Intent intent = new Intent();
+                    intent.setClass(getActivity(),DetailActivity.class);
+                    startActivity(intent);
+                }
+                else{
+                    Toast.makeText(getActivity(), "请选择歌曲后再点我噢", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        inAnimation();
         //给listView设置点击事件
         listView_localMain.setOnItemClickListener(this);
 
@@ -99,10 +139,17 @@ public class Local extends Fragment implements AdapterView.OnItemClickListener{
     //item点击事件&&播放flag图片的实现
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        //*******在这里进行设置----点击了就算是现在是local了
+
+
+        LocalItemClick localItemClick = new LocalItemClick(
+                MyApplication.allLocalmp3list,position,getContext(),listView_localMain
+        );
+        localItemClick.localItemClick();
+       /*******在这里进行设置----点击了就算是现在是local了
         MyApplication.STOPING = false;
         MyApplication.isLocal = true;
         MyApplication.nowUrlPosition = -1;
+        MyApplication.isPlaying_url = false;
 
         //获取到当前点击的item对应的MP3实体
         MyApplication.nowMp3Info = mp3Infos.get(position);
@@ -145,7 +192,7 @@ public class Local extends Fragment implements AdapterView.OnItemClickListener{
         }
 
         //改变点的状态---切换位置
-        changePlayingFlag(position);
+        changePlayingFlag(position);*/
 
     }
 

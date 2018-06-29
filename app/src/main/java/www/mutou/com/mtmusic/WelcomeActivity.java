@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.animation.AnimationSet;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import www.mutou.com.utils.DensityUtil;
@@ -26,6 +27,9 @@ public class WelcomeActivity extends Activity {
     private ImageView imageView_t;
     private ImageView imageView_usic;
     private LinearLayout linearLayout_mtm;
+    private TextView tv_name;
+    private TextView tv_class;
+    private TextView tv_num;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +43,9 @@ public class WelcomeActivity extends Activity {
         imageView_t = (ImageView) findViewById(R.id.welcome_T);
         imageView_usic = (ImageView) findViewById(R.id.welcome_usic);
         linearLayout_mtm = (LinearLayout) findViewById(R.id.linear_MTM);
+        tv_name = (TextView) findViewById(R.id.myname);
+        tv_class = (TextView) findViewById(R.id.myclass);
+        tv_num = (TextView) findViewById(R.id.mynums);
 
 
         //开始开场动画
@@ -54,20 +61,77 @@ public class WelcomeActivity extends Activity {
         welcome_image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //开始退场动画
-                exitAnimation();
-
+                messageGone();
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        Intent intent = new Intent();
-                        intent.setClass(WelcomeActivity.this,MainActivity.class);
-                        startActivityForResult(intent, 0,ActivityOptions.makeSceneTransitionAnimation(WelcomeActivity.this).toBundle());
-                    }
-                }, 500);
+                        tv_name.setVisibility(View.GONE);
+                        tv_class.setVisibility(View.GONE);
+                        tv_num.setVisibility(View.GONE);
 
+
+
+
+                        //开始退场动画
+                        exitAnimation();
+
+
+
+
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                Intent intent = new Intent();
+                                intent.setClass(WelcomeActivity.this,MainActivity.class);
+                                startActivityForResult(intent, 0,ActivityOptions.makeSceneTransitionAnimation(WelcomeActivity.this).toBundle());
+                            }
+                        }, 500);
+                    }
+                },500);
             }
         });
+
+        imageView_usic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ObjectAnimator name_translationX = ObjectAnimator.ofFloat(tv_name,"translationX",-100f,40f,0f);
+                ObjectAnimator class_translationX = ObjectAnimator.ofFloat(tv_class,"translationX",100f,-40f,0f);
+                ObjectAnimator nums_translationX = ObjectAnimator.ofFloat(tv_num,"translationX",-100f,40f,0f);
+
+
+                ObjectAnimator name_alpha = ObjectAnimator.ofFloat(tv_name,"alpha",0f,1f);
+                ObjectAnimator class_alpha = ObjectAnimator.ofFloat(tv_class,"alpha",0f,1f);
+                ObjectAnimator nums_alpha = ObjectAnimator.ofFloat(tv_num,"alpha",0f,1f);
+
+                AnimatorSet set = new AnimatorSet();
+                set.play(name_alpha).with(class_alpha).with(nums_alpha)
+                        .with(name_translationX).with(class_translationX).with(nums_translationX);
+                set.setDuration(700);
+                set.start();
+
+                tv_name.setVisibility(View.VISIBLE);
+                tv_class.setVisibility(View.VISIBLE);
+                tv_num.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+    private void messageGone(){
+        ObjectAnimator name_translationX = ObjectAnimator.ofFloat(tv_name,"translationX",0f,40f,-100);
+        ObjectAnimator class_translationX = ObjectAnimator.ofFloat(tv_class,"translationX",0f,-40f,100f);
+        ObjectAnimator nums_translationX = ObjectAnimator.ofFloat(tv_num,"translationX",0f,40f,-100f);
+
+
+        ObjectAnimator name_alpha = ObjectAnimator.ofFloat(tv_name,"alpha",1f,0f);
+        ObjectAnimator class_alpha = ObjectAnimator.ofFloat(tv_class,"alpha",1f,0f);
+        ObjectAnimator nums_alpha = ObjectAnimator.ofFloat(tv_num,"alpha",1f,0f);
+
+        AnimatorSet set = new AnimatorSet();
+        set.play(name_alpha).with(class_alpha).with(nums_alpha)
+                .with(name_translationX).with(class_translationX).with(nums_translationX);
+        set.setDuration(500);
+        set.start();
+
     }
 
     /**

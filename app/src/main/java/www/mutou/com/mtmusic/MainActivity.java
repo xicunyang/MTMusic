@@ -16,7 +16,10 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
+import android.support.design.internal.NavigationMenuPresenter;
+import android.support.design.internal.NavigationMenuView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -26,6 +29,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
@@ -35,6 +39,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -45,6 +50,7 @@ import com.tandong.swichlayout.SwitchLayout;
 
 import org.w3c.dom.Text;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,6 +63,7 @@ import www.mutou.com.model.Mp3Info;
 import www.mutou.com.service.PlayerService;
 import www.mutou.com.url.UrlMain;
 import www.mutou.com.utils.DensityUtil;
+import www.mutou.com.utils.PlayerControls;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -77,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private View nav_header;
     private ImageView iv_header_userPic;
     private TextView tv_header_username;
+    private PlayerControls playerControls;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +93,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Transition explode = TransitionInflater.from(this).inflateTransition(android.R.transition.fade);
         getWindow().setEnterTransition(explode);
         setContentView(R.layout.activity_main);
+
+        //先得到player控制器
+        playerControls = new PlayerControls(this);
+
 
         //找到控件
         initViews();
@@ -137,6 +149,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tv_item_singerAlum = (TextView) findViewById(R.id.main_item_singerAlum);
         NavigationView nav = (NavigationView) findViewById(R.id.main_nav);
         View nav_header = nav.getHeaderView(0);
+        nav.setItemIconTintList(null);
+        setNavigationMenuLineStyle(nav,Color.parseColor("#999999"),1);
         iv_header_userPic = (ImageView) nav_header.findViewById(R.id.iv_header_userpic);
         tv_header_username = (TextView) nav_header.findViewById(R.id.tv_header_username);
 
@@ -144,7 +158,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         main_fab.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                Toast.makeText(MainActivity.this, "长摁成功......", Toast.LENGTH_SHORT).show();
+                if(MyApplication.isPlaying_url||MyApplication.isPlaying_local){
+                    Intent intent = new Intent();
+                    intent.setClass(MainActivity.this,DetailActivity.class);
+                    startActivity(intent);
+                }
                 return true;
             }
         });
@@ -165,6 +183,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ll_item.setOnClickListener(this);
     }
 
+    public static void setNavigationMenuLineStyle(NavigationView navigationView, @ColorInt final int color, final int height) {
+        try {
+            Field fieldByPressenter = navigationView.getClass().getDeclaredField("mPresenter");
+            fieldByPressenter.setAccessible(true);
+            NavigationMenuPresenter menuPresenter = (NavigationMenuPresenter) fieldByPressenter.get(navigationView);
+            Field fieldByMenuView = menuPresenter.getClass().getDeclaredField("mMenuView");
+            fieldByMenuView.setAccessible(true);
+            final NavigationMenuView mMenuView = (NavigationMenuView) fieldByMenuView.get(menuPresenter);
+            mMenuView.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
+                @Override
+                public void onChildViewAttachedToWindow(View view) {
+                    RecyclerView.ViewHolder viewHolder = mMenuView.getChildViewHolder(view);
+                    if (viewHolder != null && "SeparatorViewHolder".equals(viewHolder.getClass().getSimpleName()) && viewHolder.itemView != null) {
+                        if (viewHolder.itemView instanceof FrameLayout) {
+                            FrameLayout frameLayout = (FrameLayout) viewHolder.itemView;
+                            View line = frameLayout.getChildAt(0);
+                            line.setBackgroundColor(color);
+                            line.getLayoutParams().height = height;
+                            line.setLayoutParams(line.getLayoutParams());
+                        }
+                    }
+                }
+
+                @Override
+                public void onChildViewDetachedFromWindow(View view) {
+
+                }
+            });
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
     @Override
     public void onClick(View v) {
         switch (v.getId()){
@@ -188,6 +238,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Intent intent = new Intent();
                 intent.setClass(MainActivity.this,DetailActivity.class);
                 startActivity(intent);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        ButtonGroupCloseAnimation();
+                    }
+                },1000);
                 break;
             default:
                 break;
@@ -198,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void main_fab_Click(){
         //如果按钮没被点击
         if(!fab_ckeched){
-            showFabItems();
+            /*showFabItems();
             fab_ckeched = true;
             //设置动画  item显示
             if(!MyApplication.STOPING){
@@ -209,11 +265,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 set.setDuration(500);
                 set.start();
                 ll_item.setVisibility(View.VISIBLE);
-            }
+            }*/
+            ButtonGroupShowAnimation();
         }
         //如果按钮以被点击
         else{
-            closeFabItems();
+           /* closeFabItems();
             //设置动画  item退出
             ObjectAnimator item_alpha = ObjectAnimator.ofFloat(ll_item, "alpha", 1f, 0f, 0f);
             ObjectAnimator item_translationX = ObjectAnimator.ofFloat(ll_item, "translationX", 0f, 300f);
@@ -223,224 +280,63 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             set.start();
 
             //rl_item.setVisibility(View.GONE);
-            fab_ckeched = false;
+            fab_ckeched = false;*/
+            ButtonGroupCloseAnimation();
         }
+    }
+
+    //点击歌曲信息框之后进行按钮组的显示
+    private void ButtonGroupShowAnimation(){
+        showFabItems();
+        fab_ckeched = true;
+        //设置动画  item显示
+        if(!MyApplication.STOPING){
+            ObjectAnimator item_alpha = ObjectAnimator.ofFloat(ll_item,"alpha",0f,0f,1f);
+            ObjectAnimator item_translationX = ObjectAnimator.ofFloat(ll_item,"translationX",300f,0f);
+            AnimatorSet set = new AnimatorSet();
+            set.play(item_alpha).with(item_translationX);
+            set.setDuration(500);
+            set.start();
+            ll_item.setVisibility(View.VISIBLE);
+        }
+    }
+
+    //点击歌曲信息框之后进行按钮组的隐藏
+    private void ButtonGroupCloseAnimation(){
+        closeFabItems();
+        //设置动画  item退出
+        ObjectAnimator item_alpha = ObjectAnimator.ofFloat(ll_item, "alpha", 1f, 0f, 0f);
+        ObjectAnimator item_translationX = ObjectAnimator.ofFloat(ll_item, "translationX", 0f, 300f);
+        AnimatorSet set = new AnimatorSet();
+        set.play(item_alpha).with(item_translationX);
+        set.setDuration(500);
+        set.start();
+
+        //rl_item.setVisibility(View.GONE);
+        fab_ckeched = false;
     }
 
     //上一曲
     private void prev(){
-        if(MyApplication.isLocal){
-            //本地
-            //alllist为空
-            if(MyApplication.allLocalmp3list== null){
-                return;
-            }
-            //当前播放位置为空
-            if(MyApplication.nowPosition == -1){
-                return;
-            }
-            //如果点击下来的瞬间---当前位置已经是第一个了，那么就将当前位置设置为末尾+1
-            if(MyApplication.nowPosition == 0){
-                MyApplication.nowPosition = MyApplication.allLocalmp3list.size();
-            }
-            //当前播放位置-1
-            MyApplication.nowPosition --;
-            //设置当前播放的音乐实体
-            MyApplication.nowMp3Info = MyApplication.allLocalmp3list.get(MyApplication.nowPosition);
-            //通知Service播放音乐
-            Intent intent = new Intent();
-            intent.putExtra("PLAYFLAG","PREV");
-            intent.putExtra("WHO","LOCAL");
-            intent.setClass(MainActivity.this, PlayerService.class);
-            startService(intent);
-
-            Toast.makeText(MainActivity.this, "当前歌曲 "+MyApplication.allLocalmp3list.get(
-                    MyApplication.nowPosition
-            ).getTitle(), Toast.LENGTH_SHORT).show();
-/*                    //到了最后一首歌
-                    if(MyApplication.nowPosition == 0){
-                        Toast.makeText(MainActivity.this, "到了第一首歌 "+MyApplication.allLocalmp3list.get(
-                                MyApplication.nowPosition
-                        ).getTitle(), Toast.LENGTH_SHORT).show();
-                    }*/
-        }
-        else{
-            //当前播放位置为空------------------------------
-            if(MyApplication.nowUrlPosition <0){
-                return;
-            }
-            //如果点击下来的瞬间---当前位置已经是第一个了，那么就将当前位置设置为末尾+1
-            if(MyApplication.nowUrlPosition == 0){
-                switch (MyApplication.isWho){
-                    case "kw":
-                        MyApplication.nowUrlPosition = MyApplication.allUrlmp3list_kw.get(0).getAbslist().length;
-                        break;
-                    case "kg":
-                        MyApplication.nowUrlPosition = MyApplication.allUrlmp3list_kg.get(0).getData()[0].getLists().length;
-                        break;
-                }
-            }
-            //当前播放位置-1
-            MyApplication.nowUrlPosition --;
-            //设置当前播放的音乐实体
-            switch(MyApplication.isWho){
-                case "kw":
-                    MyApplication.nowUrlMp3Info_kw = MyApplication.allUrlmp3list_kw.get(0).getAbslist()[MyApplication.nowUrlPosition];
-                    break;
-                case "kg":
-                    MyApplication.nowUrlMp3Info_kg = MyApplication.allUrlmp3list_kg.get(0).getData()[0].getLists()[MyApplication.nowUrlPosition];
-                    break;
-                default:
-                    break;
-            }
-            //通知Service播放音乐
-            Intent intent = new Intent();
-            intent.putExtra("PLAYFLAG","PREV");
-            intent.putExtra("WHO","URL");
-            intent.setClass(MainActivity.this, PlayerService.class);
-            startService(intent);
-        }
+        playerControls.prev();
     }
 
     //暂停||播放
     private void playOrPause(){
-        if(MyApplication.isLocal){
-            if(!MyApplication.isStoping_local){
-                //暂停--->播放
-                if(!MyApplication.isPlaying_local){
-                    //将图片改为播放
-                    playOrPause.setImageResource(R.drawable.playing);
-                    MyApplication.isPlaying_local = true;
-
-                    //开启Service
-                    Intent intent = new Intent();
-                    intent.putExtra("PLAYFLAG","PAUSE2PLAY");
-                    intent.putExtra("WHO","LOCAL");
-                    intent.setClass(MainActivity.this, PlayerService.class);
-                    startService(intent);
-                }
-                //播放--->暂停
-                else{
-                    //将图片改为暂停
-                    playOrPause.setImageResource(R.drawable.pausing);
-                    MyApplication.isPlaying_local = false;
-
-                    //开启Service
-                    Intent intent = new Intent();
-                    intent.putExtra("PLAYFLAG","PLAY2PAUSE");
-                    intent.putExtra("WHO","LOCAL");
-                    intent.setClass(MainActivity.this, PlayerService.class);
-                    startService(intent);
-                }
-            }
+        boolean result = playerControls.playOrPause();
+        if(result == true){
+            //--->2play
+            playOrPause.setImageResource(R.drawable.playing);
         }
         else{
-            if(!MyApplication.isStoping_url){
-                //暂停--->播放
-                if(MyApplication.isPlaying_url == false){
-                    //将图片改为播放
-                    playOrPause.setImageResource(R.drawable.playing);
-                    MyApplication.isPlaying_url = true;
-
-                    //开启Service
-                    Intent intent = new Intent();
-                    intent.putExtra("PLAYFLAG","PAUSE2PLAY");
-                    intent.putExtra("WHO","URL");
-                    intent.setClass(MainActivity.this, PlayerService.class);
-                    startService(intent);
-                }
-                //播放--->暂停
-                else{
-                    //将图片改为暂停
-                    playOrPause.setImageResource(R.drawable.pausing);
-                    MyApplication.isPlaying_url = false;
-
-                    //开启Service
-                    Intent intent = new Intent();
-                    intent.putExtra("PLAYFLAG","PLAY2PAUSE");
-                    intent.putExtra("WHO","URL");
-                    intent.setClass(MainActivity.this, PlayerService.class);
-                    startService(intent);
-                }
-            }
+            //--->2pause
+            playOrPause.setImageResource(R.drawable.pausing);
         }
     }
 
     //下一曲
     private void next(){
-        if(MyApplication.isLocal){
-            //alllist为空
-            if(MyApplication.allLocalmp3list== null){
-                return;
-            }
-            //当前播放位置为空
-            if(MyApplication.nowPosition == -1){
-                return;
-            }
-            //如果点击下来的瞬间---当前位置已经是末尾了，那么就将当前位置设置顶部-1
-            if(MyApplication.nowPosition == MyApplication.allLocalmp3list.size()-1){
-                MyApplication.nowPosition = -1;
-            }
-            //当前播放位置+1
-            MyApplication.nowPosition ++;
-            Log.d(TAG, "onClick: mutou--->"+MyApplication.nowUrlPosition);
-            //设置当前播放的音乐实体
-            MyApplication.nowMp3Info = MyApplication.allLocalmp3list.get(MyApplication.nowPosition);
-            //通知Service播放音乐
-            Intent intent = new Intent();
-            intent.putExtra("PLAYFLAG","NEXT");
-            intent.putExtra("WHO","LOCAL");
-            intent.setClass(MainActivity.this, PlayerService.class);
-            startService(intent);
-            //到了最后一首歌
-            if(MyApplication.nowPosition == MyApplication.allLocalmp3list.size()-1){
-                Toast.makeText(MainActivity.this, "到了最后一首歌 "+MyApplication.allLocalmp3list.get(
-                        MyApplication.nowPosition
-                ).getTitle(), Toast.LENGTH_SHORT).show();
-            }
-        }
-        else{
-            //当前播放位置为空------------------------------
-            if(MyApplication.nowUrlPosition < 0){
-                return;
-            }
-            //如果点击下来的瞬间---当前位置已经是第一个了，那么就将当前位置设置为末尾+1
-            switch (MyApplication.isWho){
-                case "kw":
-                    if(MyApplication.nowUrlPosition == MyApplication.allUrlmp3list_kw.get(0).getAbslist().length-1){
-                        MyApplication.nowUrlPosition = -1;
-                    }
-                    break;
-                case "kg":
-                    if(MyApplication.nowUrlPosition == MyApplication.allUrlmp3list_kg.get(0).getData()[0].getLists().length-1){
-                        MyApplication.nowUrlPosition = -1;
-                    }
-                    break;
-                default:
-                    break;
-            }
-
-            //当前播放位置-1
-            MyApplication.nowUrlPosition ++;
-            //设置当前播放的音乐实体
-            Log.d(TAG, "onClick: mutou--->"+MyApplication.nowUrlPosition);
-            switch (MyApplication.isWho){
-                case "kw":
-                    MyApplication.nowUrlMp3Info_kw = MyApplication.allUrlmp3list_kw.get(0).getAbslist()[MyApplication.nowUrlPosition];
-                    break;
-                case "kg":
-                    MyApplication.nowUrlMp3Info_kg = MyApplication.allUrlmp3list_kg.get(0).getData()[0].getLists()[MyApplication.nowUrlPosition];
-                    break;
-                default:
-                    break;
-            }
-            //通知Service播放音乐
-            Intent intent = new Intent();
-            intent.putExtra("PLAYFLAG","NEXT");
-            intent.putExtra("WHO","URL");
-            intent.setClass(MainActivity.this, PlayerService.class);
-            startService(intent);
-        }
+        playerControls.next();
     }
 
     //显示悬浮按钮组动画
@@ -686,19 +582,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     MyApplication.MainFABRotation.setRepeatMode(ValueAnimator.RESTART);
                 }
 
-                /*//这里用或者不行---
-                if(MyApplication.isPlaying_local || MyApplication.isPlaying_url){
-                    //设置成playing的图片
-                    playOrPause.setImageResource(R.drawable.playing);
-                    MyApplication.MainFABRotation.start();
-                }
-                else{
-                    playOrPause.setImageResource(R.drawable.pausing);
-                    //然后添加动画---停止旋转
-                    if(MyApplication.MainFABRotation.isRunning()){
-                        MyApplication.MainFABRotation.pause();
-                    }
-                }*/
                 if(MyApplication.isLocal){
                     if(MyApplication.isPlaying_local){
                         //设置成playing的图片
